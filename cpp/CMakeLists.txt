@@ -21,7 +21,7 @@ target_include_directories(lib PUBLIC lib/include)
 add_executable(monkey bin/main.cpp)
 target_link_libraries(monkey lib)
 
-add_executable(testlib test/main.cpp test/lexer_test.cpp test/enums.h test/init.h)
+add_executable(testlib test/main.cpp test/lexer_test.cpp)
 target_include_directories(testlib PRIVATE lib)
 target_link_libraries(testlib PRIVATE lib Catch2::Catch2)
 

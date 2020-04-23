@@ -6,7 +6,7 @@
 
 namespace monkey {
 struct Lexer {
-  Lexer(const std::string& input);
+  explicit Lexer(const std::string& input);
   ~Lexer();
   Lexer(Lexer&&) noexcept;
   Lexer& operator=(Lexer&&) noexcept;

@@ -2,6 +2,8 @@
 
 #include <string>
 
+using std::ostream;
+
 namespace monkey {
 struct Token {
   enum class Type {
@@ -29,8 +31,13 @@ struct Token {
     FUNCTION, // = "FUNCTION"
     LET,      // = "LET"
   };
+  friend ostream& operator<<(ostream& os, Type t);
 
   Type type;
   std::string literal;
+
+  static Type lookup_ident(std::string ident);
+
+  friend ostream& operator<<(ostream& os, const Token& t);
 };
 } // namespace monkey
