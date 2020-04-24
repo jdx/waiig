@@ -31,28 +31,53 @@ struct Lexer::Impl {
     skip_whitespace();
 
     switch (ch) {
+      //<editor-fold desc="single-char">
     case '=': {
       tok = {Token::Type::ASSIGN, {ch}};
       break;
     };
+    case '+': {
+      tok = {Token::Type::PLUS, {ch}};
+      break;
+    }
+    case '-': {
+      tok = {Token::Type::MINUS, {ch}};
+      break;
+    }
+    case '!': {
+      tok = {Token::Type::BANG, {ch}};
+      break;
+    }
+    case '/': {
+      tok = {Token::Type::SLASH, {ch}};
+      break;
+    }
+    case '*': {
+      tok = {Token::Type::ASTERISK, {ch}};
+      break;
+    }
+    case '<': {
+      tok = {Token::Type::LT, {ch}};
+      break;
+    }
+    case '>': {
+      tok = {Token::Type::GT, {ch}};
+      break;
+    }
     case ';': {
       tok = {Token::Type::SEMICOLON, {ch}};
       break;
     };
+    case ',': {
+      tok = {Token::Type::COMMA, {ch}};
+      break;
+    }
     case '(': {
       tok = {Token::Type::LPAREN, {ch}};
       break;
     }
     case ')': {
       tok = {Token::Type::RPAREN, {ch}};
-      break;
-    }
-    case ',': {
-      tok = {Token::Type::COMMA, {ch}};
-      break;
-    }
-    case '+': {
-      tok = {Token::Type::PLUS, {ch}};
       break;
     }
     case '{': {
@@ -63,6 +88,7 @@ struct Lexer::Impl {
       tok = {Token::Type::RBRACE, {ch}};
       break;
     }
+      //</editor-fold>
     case 0: {
       tok.literal = "";
       tok.type    = Token::Type::EOF_;

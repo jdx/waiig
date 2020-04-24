@@ -7,36 +7,50 @@ using std::ostream;
 namespace monkey {
 struct Token {
   enum class Type {
-    ILLEGAL, // = "ILLEGAL"
-    EOF_,    // = "EOF"
+    ILLEGAL, ///< Example: "ILLEGAL"
+    EOF_,    ///< Example: "EOF"
 
     // Identifiers + literals
-    IDENT, // = "IDENT" // add, foobar, x, y, ...
-    INT,   // = "INT"   // 123456
+    IDENT, ///< Examples: add, foobar, x, y, ...
+    INT,   ///< Example: 123456
 
     // Operators
-    ASSIGN, // = "="
-    PLUS,   // = "+"
+    ASSIGN,   ///< Example: "="
+    PLUS,     ///< Example: "+"
+    MINUS,    ///< Example: "-"
+    BANG,     ///< Example: "!"
+    ASTERISK, ///< Example: "*"
+    SLASH,    ///< Example: "/"
+
+    LT, ///< Example: "<"
+    GT, ///< Example: ">"
 
     // Delimiters
-    COMMA,     // = ","
-    SEMICOLON, // = ";"
+    COMMA,     ///< Example: ","
+    SEMICOLON, ///< Example: ";"
 
-    LPAREN, // = "("
-    RPAREN, // = ")"
-    LBRACE, // = "{"
-    RBRACE, // = "}"
+    LPAREN, ///< Example: ")"
+    RPAREN, ///< Example: ")"
+    LBRACE, ///< Example: "{"
+    RBRACE, ///< Example: "}"
 
     // Keywords
-    FUNCTION, // = "FUNCTION"
-    LET,      // = "LET"
+    FUNCTION, ///< Example: "fn"
+    LET,      ///< Example: "let"
+    TRUE,     ///< Example: "true"
+    FALSE,    ///< Example: "false"
+    IF,       ///< Example: "if"
+    ELSE,     ///< Example: "else"
+    RETURN,   ///< Example: "return"
   };
   friend ostream& operator<<(ostream& os, Type t);
 
   Type type;
   std::string literal;
 
-  static Type lookup_ident(std::string ident);
+  static Type lookup_ident(const std::string& ident);
+
+  bool operator==(const Token&) const;
 
   friend ostream& operator<<(ostream& os, const Token& t);
 };
