@@ -1,4 +1,5 @@
 #include "monkey/repl.h"
+#include "monkey/lexer.h"
 
 #include <fmt/ostream.h>
 
@@ -18,11 +19,10 @@ void start(istream& in, ostream& out) {
   out << PROMPT;
   string line;
   while (std::getline(in, line)) {
-    Lexer lex{line};
-    for (auto tok = lex.next_token(); tok.type != Token::Type::EOF_;
-         tok      = lex.next_token()) {
-      fmt::print("tok: {}\n", tok);
+    for (const auto& tok : lex(line)) {
+      out << fmt::format("{}\n", tok);
     }
+    out << PROMPT;
   }
   if (in.bad()) { throw runtime_error{"error reading input"}; }
 }

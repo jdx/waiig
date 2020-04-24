@@ -16,12 +16,13 @@ TEST_CASE("lexer") {
       auto c = a == b ? text_style{} : fg(terminal_color::red);
       print(c, ".{:>18} = {}\n", a, b);
     };
-    Lexer l{input};
+    auto l = Lexer{input}.begin();
     for (size_t i{0}; auto&& expect : expected) {
-      auto tok = l.next_token();
+      auto tok = *l;
       debug(tok, expect);
       REQUIRE(tok.type == expect.type);
       REQUIRE(tok.literal == expect.literal);
+      ++l;
       ++i;
     }
   };
