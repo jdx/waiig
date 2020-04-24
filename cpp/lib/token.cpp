@@ -3,6 +3,7 @@
 #include <fmt/ostream.h>
 
 #include <unordered_map>
+#include <utility>
 
 using fmt::format;
 using std::string;
@@ -70,5 +71,11 @@ ostream& operator<<(ostream& os, const Token& tok) {
 ostream& operator<<(ostream& os, Token::Type type) {
   return os << type_to_str(type);
 }
-
+Token::Token() = default;
+Token::Token(Token::Type type, string literal)
+    : type{type}
+    , literal{move(literal)} { }
+Token::Token(const Token&) = default;
+Token::Token(Token&&) noexcept = default;
+Token& Token::operator=(Token&&) noexcept = default;
 } // namespace monkey

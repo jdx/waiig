@@ -47,10 +47,16 @@ struct Token {
   };
   friend ostream& operator<<(ostream& os, Type t);
 
-  Type type;
+  Type type{};
   std::string literal{};
 
   static Type lookup_ident(const std::string& ident);
+
+  Token();
+  Token(Type type, std::string literal);
+  Token(const Token&);
+  Token(Token&&) noexcept;
+  Token& operator=(Token&&) noexcept;
 
   bool operator==(const Token&) const;
 

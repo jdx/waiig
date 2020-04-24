@@ -21,7 +21,7 @@ void start(istream& in, ostream& out) {
   string line;
   while (std::getline(in, line)) {
     Lexer lex{line};
-    for (auto tok = lex.next_token(); tok.type != Token::Type::EOF_;
+    for (auto&& tok = lex.next_token(); tok.type != Token::Type::EOF_;
          tok      = lex.next_token()) {
       out << fmt::format("{}\n", tok);
     }

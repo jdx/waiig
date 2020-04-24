@@ -10,43 +10,40 @@ namespace monkey {
 struct Node {
   virtual ~Node() = default;
 
-  virtual const std::string& token_literal() = 0;
+  virtual const std::string& token_literal() const = 0;
 };
 
 struct Statement : Node {
-  void statementNode() { }
+  // void statementNode() { }
 };
 
 struct Expression : Node {
-  void expressionNode() { }
+  // void expressionNode() { }
 };
 
-struct Program {
-  std::vector<Statement> statements{};
+struct Program : Node {
+  std::vector<std::unique_ptr<Statement>> statements{};
 
-  const std::string& token_literal();
+  const std::string& token_literal() const override;
 };
 
 struct Identifier : Expression {
-  const Token& token; ///> token.IDENT
+  Token token; ///> token.IDENT
   const std::string& value;
 
-  Identifier(const Token& token,
-             const std::string& value);
+  Identifier(Token&& token);
   ~Identifier() override;
-  const std::string& token_literal() override;
+  const std::string& token_literal() const override;
 };
 
 struct LetStatement : Statement {
-  const Token& token;
-  const Identifier& name;
-  const Expression& value;
+  Token token;
+  std::unique_ptr<Identifier> name{};
+  std::unique_ptr<Expression> value{};
 
-  LetStatement(const Token& token,
-               const Identifier& name,
-               const Expression& value);
+  explicit LetStatement(Token&& token);
   ~LetStatement() override;
-  const std::string& token_literal() override;
+  const std::string& token_literal() const override;
 };
 
 } // namespace monkey

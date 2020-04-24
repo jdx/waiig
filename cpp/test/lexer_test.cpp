@@ -19,7 +19,7 @@ TEST_CASE("lexer") {
     auto lex = Lexer{input};
     for (size_t i{0}; auto&& expect : expected) {
       auto tok = lex.next_token();
-      debug(tok, expect);
+      // debug(tok, expect);
       REQUIRE(tok.type == expect.type);
       REQUIRE(tok.literal == expect.literal);
       ++i;
