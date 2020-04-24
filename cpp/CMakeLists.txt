@@ -14,14 +14,14 @@ endif ()
 find_package(fmt CONFIG REQUIRED)
 find_package(Catch2 CONFIG REQUIRED)
 
-add_library(lib lib/lexer.cpp lib/lexer.cpp lib/include/monkey/lexer.h lib/token.cpp lib/include/monkey/repl.h lib/repl.cpp)
+add_library(lib lib/lexer.cpp lib/lexer.cpp lib/token.cpp lib/repl.cpp)
 target_link_libraries(lib fmt::fmt)
 target_include_directories(lib PUBLIC lib/include)
 
-add_executable(monkey bin/main.cpp bin/user.cpp bin/user.h)
+add_executable(monkey bin/main.cpp bin/user.cpp)
 target_link_libraries(monkey lib)
 
-add_executable(testlib test/main.cpp test/lexer_test.cpp)
+add_executable(testlib test/main.cpp test/lexer_test.cpp test/repl_test.cpp)
 #target_include_directories(testlib PRIVATE lib)
 target_link_libraries(testlib PRIVATE lib Catch2::Catch2)
 

@@ -19,7 +19,7 @@ monkey/{} darwin-x64 cpp
         user.name(),
         VERSION);
 
-  monkey::Repl::start(std::cin, std::cout);
+  monkey::repl::start(std::cin, std::cout);
 
   return 0;
 }
