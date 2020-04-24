@@ -14,7 +14,7 @@ endif ()
 find_package(fmt CONFIG REQUIRED)
 find_package(Catch2 CONFIG REQUIRED)
 
-add_library(lib lib/lexer.cpp lib/lexer.cpp lib/include/monkey/lexer.h lib/token.cpp lib/include/monkey/repl.h)
+add_library(lib lib/lexer.cpp lib/lexer.cpp lib/include/monkey/lexer.h lib/token.cpp lib/include/monkey/repl.h lib/repl.cpp)
 target_link_libraries(lib fmt::fmt)
 target_include_directories(lib PUBLIC lib/include)
 

@@ -2,4 +2,9 @@
 
 set -e
 
-cmake --build cmake-build-debug --target monkey -v
+mkdir -p cmake-build-debug
+cd cmake-build-debug
+
+cmake --build . --target monkey
+
+./monkey

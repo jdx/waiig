@@ -13,7 +13,7 @@ TEST_CASE("lexer") {
   auto test = [](const string& input, const vector<Token>& expected) {
     auto debug = [](const Token& a, const Token& b) {
       using namespace fmt;
-      auto c = fg(a == b ? terminal_color::black : terminal_color::red);
+      auto c = a == b ? text_style{} : fg(terminal_color::red);
       print(c, ".{:>18} = {}\n", a, b);
     };
     Lexer l{input};
