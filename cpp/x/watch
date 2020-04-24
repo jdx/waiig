@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+set -e
+
+while true; do
+  fd "\.(cpp|h)\$" | entr -cd ./x/run
+done

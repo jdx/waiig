@@ -36,7 +36,7 @@ string type_to_str(Token::Type type) {
       {Token::Type::LET, "LET"},
       {Token::Type::TRUE, "TRUE"},
       {Token::Type::FALSE, "FALSE"},
-      {Token::Type::IF,  "IF"},
+      {Token::Type::IF, "IF"},
       {Token::Type::ELSE, "ELSE"},
       {Token::Type::RETURN, "RETURN"},
   };
