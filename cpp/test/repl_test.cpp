@@ -30,6 +30,7 @@ IDENT<"y">
 SEMICOLON<";">
 RBRACE<"}">
 SEMICOLON<";">
->> )EOF");
+>> 
+)EOF");
   };
 };

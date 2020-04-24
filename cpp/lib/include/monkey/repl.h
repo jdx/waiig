@@ -1,6 +1,6 @@
 #pragma once
 
-#include "lexer.h"
+#include <iostream>
 
 namespace monkey::repl {
 

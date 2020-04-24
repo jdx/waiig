@@ -1,9 +1,10 @@
 #include "monkey/repl.h"
-#include "monkey/lexer.h"
 
 #include <fmt/ostream.h>
 
 #include <iostream>
+
+#include "monkey/lexer.h"
 
 namespace monkey::repl {
 
@@ -25,6 +26,7 @@ void start(istream& in, ostream& out) {
     out << PROMPT;
   }
   if (in.bad()) { throw runtime_error{"error reading input"}; }
+  out << "\n";
 }
 
 } // namespace monkey::repl
