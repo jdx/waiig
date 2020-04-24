@@ -32,7 +32,7 @@ Lexer::Lexer(istream& in)
     : in{in} { }
 Lexer::Lexer(const string& in)
     : in_str{in} { }
-Lexer::~Lexer()                 = default;
+Lexer::~Lexer()                = default;
 Lexer::Lexer(Lexer&&) noexcept = default;
 
 Lexer::Iter Lexer::begin() const {
