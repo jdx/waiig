@@ -20,14 +20,6 @@ bool is_digit(const char& ch) {
   return '0' <= ch && ch <= '9';
 }
 
-Lexer lex(istream& in) {
-  return Lexer{in};
-}
-
-Lexer lex(const std::string& in) {
-  return Lexer{in};
-}
-
 Lexer::Lexer(istream& in)
     : in{in} { }
 Lexer::Lexer(const string& in)
@@ -35,32 +27,17 @@ Lexer::Lexer(const string& in)
 Lexer::~Lexer()                = default;
 Lexer::Lexer(Lexer&&) noexcept = default;
 
-Lexer::Iter Lexer::begin() const {
-  return Iter{in};
-}
-Lexer::Iter Lexer::end() const {
-  static std::istringstream emptystream{};
-  return Iter{emptystream};
-}
-Lexer::Iter::Iter(istream& in)
-    : in{in} {
-  ++*this;
-}
-
-Lexer::Iter::~Iter() = default;
-Token Lexer::Iter::operator*() const {
-  return token;
-}
-Lexer::Iter& Lexer::Iter::operator++() {
+Token Lexer::next_token() {
   skip_whitespace();
 
+  Token token{};
   char c;
   if (in >> c) {
     token.literal = {c};
   } else {
     token.literal = {};
     token.type    = Token::Type::EOF_;
-    return *this;
+    return token;
   }
 
   switch (c) {
@@ -155,17 +132,10 @@ Lexer::Iter& Lexer::Iter::operator++() {
   }
   }
 
-  return *this;
+  return token;
 }
 
-Lexer::Iter::Iter(Lexer::Iter&&) noexcept = default;
-
-bool Lexer::Iter::operator==(const Lexer::Iter& other) const {
-  return token.type == Token::Type::EOF_
-         && other.token.type == Token::Type::EOF_;
-}
-
-void Lexer::Iter::skip_whitespace() {
+void Lexer::skip_whitespace() {
   while (is_whitespace(in.peek())) in.get();
 }
 

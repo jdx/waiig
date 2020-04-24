@@ -48,7 +48,7 @@ struct Token {
   friend ostream& operator<<(ostream& os, Type t);
 
   Type type;
-  std::string literal;
+  std::string literal{};
 
   static Type lookup_ident(const std::string& ident);
 

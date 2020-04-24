@@ -20,7 +20,9 @@ void start(istream& in, ostream& out) {
   out << PROMPT;
   string line;
   while (std::getline(in, line)) {
-    for (const auto& tok : lex(line)) {
+    Lexer lex{line};
+    for (auto tok = lex.next_token(); tok.type != Token::Type::EOF_;
+         tok      = lex.next_token()) {
       out << fmt::format("{}\n", tok);
     }
     out << PROMPT;
