@@ -24,6 +24,8 @@ string type_to_str(Token::Type type) {
       {Token::Type::SLASH, "SLASH"},
       {Token::Type::GT, "GT"},
       {Token::Type::LT, "LT"},
+      {Token::Type::EQ, "EQ"},
+      {Token::Type::NOT_EQ, "NOT_EQ"},
       {Token::Type::COMMA, "COMMA"},
       {Token::Type::SEMICOLON, "SEMICOLON"},
       {Token::Type::LPAREN, "LPAREN"},

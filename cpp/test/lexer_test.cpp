@@ -105,6 +105,9 @@ if (5 < 10) {
 } else {
 	return false;
 }
+
+10 == 10;
+10 != 9;
 )";
     vector<Token> expected = {
         // clang-format off
@@ -173,6 +176,14 @@ if (5 < 10) {
         {Token::Type::FALSE, "false"},
         {Token::Type::SEMICOLON, ";"},
         {Token::Type::RBRACE, "}"},
+        {Token::Type::INT, "10"},
+        {Token::Type::EQ, "=="},
+        {Token::Type::INT, "10"},
+        {Token::Type::SEMICOLON, ";"},
+        {Token::Type::INT, "10"},
+        {Token::Type::NOT_EQ, "!="},
+        {Token::Type::INT, "9"},
+        {Token::Type::SEMICOLON, ";"},
         {Token::Type::EOF_, ""},
         // clang-format on
     };

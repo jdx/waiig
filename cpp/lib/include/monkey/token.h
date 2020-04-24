@@ -22,8 +22,10 @@ struct Token {
     ASTERISK, ///< Example: "*"
     SLASH,    ///< Example: "/"
 
-    LT, ///< Example: "<"
-    GT, ///< Example: ">"
+    LT,     ///< Example: "<"
+    GT,     ///< Example: ">"
+    EQ,     ///< Example: "=="
+    NOT_EQ, ///< Example: "!="
 
     // Delimiters
     COMMA,     ///< Example: ","

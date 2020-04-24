@@ -32,20 +32,12 @@ struct Lexer::Impl {
 
     switch (ch) {
       //<editor-fold desc="single-char">
-    case '=': {
-      tok = {Token::Type::ASSIGN, {ch}};
-      break;
-    };
     case '+': {
       tok = {Token::Type::PLUS, {ch}};
       break;
     }
     case '-': {
       tok = {Token::Type::MINUS, {ch}};
-      break;
-    }
-    case '!': {
-      tok = {Token::Type::BANG, {ch}};
       break;
     }
     case '/': {
@@ -89,19 +81,39 @@ struct Lexer::Impl {
       break;
     }
       //</editor-fold>
+      //<editor-fold desc="equality">
+    case '=': {
+      if (peek_char() == '=') {
+        string a{ch};
+        read_char();
+        tok = {Token::Type::EQ, a + ch};
+      } else {
+        tok = {Token::Type::ASSIGN, {ch}};
+      }
+      break;
+    };
+    case '!': {
+      if (peek_char() == '=') {
+        string a{ch};
+        read_char();
+        tok = {Token::Type::NOT_EQ, a + ch};
+      } else {
+        tok = {Token::Type::BANG, {ch}};
+      }
+      break;
+    }
+      //</editor-fold>
     case 0: {
-      tok.literal = "";
-      tok.type    = Token::Type::EOF_;
+      tok = {Token::Type::EOF_, ""};
       break;
     }
     default: {
       if (is_letter(ch)) {
-        tok.literal = read_identifier();
-        tok.type    = Token::lookup_ident(tok.literal);
+        string ident = read_identifier();
+        tok          = {Token::lookup_ident(ident), ident};
         return tok;
       } else if (is_digit(ch)) {
-        tok.type    = Token::Type::INT;
-        tok.literal = read_number();
+        tok = {Token::Type::INT, read_number()};
         return tok;
       } else {
         tok = {Token::Type::ILLEGAL, {ch}};
@@ -134,16 +146,23 @@ private:
     while (is_whitespace(ch)) read_char();
   }
 
+  char peek_char() {
+    if (read_position >= input.length())
+      return 0;
+    else
+      return input[read_position];
+  }
+
   string read_identifier() {
     int start = position;
     while (is_letter(ch)) read_char();
-    return input.substr(start, position-start);
+    return input.substr(start, position - start);
   }
 
   string read_number() {
     int start = position;
     while (is_digit(ch)) read_char();
-    return input.substr(start, position-start);
+    return input.substr(start, position - start);
   }
 };
 
