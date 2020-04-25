@@ -8,51 +8,63 @@
 namespace monkey {
 
 struct Node {
+  Token token;
+  explicit Node(Token&& token);
   virtual ~Node() = default;
 
-  virtual const std::string& token_literal() const = 0;
+  virtual const std::string& token_literal() const;
+
+  friend std::ostream& operator<<(std::ostream&, const Node&);
+  virtual std::string to_str() const;
 };
 
 struct Statement : Node {
+  explicit Statement(Token&& token);
   // void statementNode() { }
 };
 
 struct Expression : Node {
+  explicit Expression(Token&& token);
   // void expressionNode() { }
 };
 
-struct Program : Node {
+struct Program {
   std::vector<std::unique_ptr<Statement>> statements{};
-
-  const std::string& token_literal() const override;
+  const std::string& token_literal() const;
+  friend std::ostream& operator<<(std::ostream&, const Program&);
 };
 
 struct Identifier : Expression {
-  Token token; ///> token.IDENT
+  explicit Identifier(Token&& token);
+
   const std::string& value;
 
-  explicit Identifier(Token&& token);
-  ~Identifier() override;
-  const std::string& token_literal() const override;
+  std::string to_str() const override;
 };
 
 struct LetStatement : Statement {
   Token token;
   std::unique_ptr<Identifier> name{};
   std::unique_ptr<Expression> value{};
-
   explicit LetStatement(Token&& token);
-  ~LetStatement() override;
-  const std::string& token_literal() const override;
+
+  std::string to_str() const override;
 };
 
 struct ReturnStatement : Statement {
   Token token;
   std::unique_ptr<Expression> return_value;
-
   explicit ReturnStatement(Token&& token);
-  ~ReturnStatement() override;
-  const std::string& token_literal() const override;
+
+  std::string to_str() const override;
+};
+
+struct ExpressionStatement : Statement {
+  Token token;
+  std::unique_ptr<Expression> expression;
+  explicit ExpressionStatement(Token&& token);
+
+  std::string to_str() const override;
 };
 
 } // namespace monkey
