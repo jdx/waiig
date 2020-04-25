@@ -50,4 +50,20 @@ let foobar = 838383;
       test_let_statement(stmt, tt.expected_identifier);
     }
   };
+  SECTION("return statements") {
+    Lexer lexer{R"(
+return 5;
+return 10;
+return 993322;
+)"};
+    Parser parser{lexer};
+
+    Program program = parser.parse_program();
+    check_parser_errors(parser);
+
+    REQUIRE(program.statements.size() == 3);
+    for (auto& stmt : program.statements) {
+      REQUIRE(stmt->token_literal() == "return");
+    }
+  };
 };

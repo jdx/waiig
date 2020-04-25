@@ -21,6 +21,7 @@ private:
 
   std::unique_ptr<Statement> parse_statement();
   std::unique_ptr<LetStatement> parse_let_statement();
+  std::unique_ptr<ReturnStatement> parse_return_statement();
 
   bool cur_token_is(Token::Type type) const;
   bool peek_token_is(Token::Type type) const;

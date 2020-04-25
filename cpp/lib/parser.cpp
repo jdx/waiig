@@ -34,6 +34,9 @@ unique_ptr<Statement> Parser::parse_statement() {
   case Token::Type::LET: {
     return parse_let_statement();
   }
+  case Token::Type::RETURN: {
+    return parse_return_statement();
+  }
   default: {
     // print("invalid token: {}\n", cur_token);
     return nullptr;
@@ -46,6 +49,12 @@ std::unique_ptr<LetStatement> Parser::parse_let_statement() {
   stmt->name = make_unique<Identifier>(move(cur_token));
   if (!expect_peek(TT::ASSIGN)) { return nullptr; }
   while (!cur_token_is(TT::SEMICOLON)) { next_token(); }
+  return stmt;
+}
+
+std::unique_ptr<ReturnStatement> Parser::parse_return_statement() {
+  auto stmt = make_unique<ReturnStatement>(move(cur_token));
+  while(cur_token_is(TT::SEMICOLON)) next_token();
   return stmt;
 }
 

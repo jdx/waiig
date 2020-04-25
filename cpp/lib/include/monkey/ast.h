@@ -31,7 +31,7 @@ struct Identifier : Expression {
   Token token; ///> token.IDENT
   const std::string& value;
 
-  Identifier(Token&& token);
+  explicit Identifier(Token&& token);
   ~Identifier() override;
   const std::string& token_literal() const override;
 };
@@ -43,6 +43,15 @@ struct LetStatement : Statement {
 
   explicit LetStatement(Token&& token);
   ~LetStatement() override;
+  const std::string& token_literal() const override;
+};
+
+struct ReturnStatement : Statement {
+  Token token;
+  std::unique_ptr<Expression> return_value;
+
+  explicit ReturnStatement(Token&& token);
+  ~ReturnStatement() override;
   const std::string& token_literal() const override;
 };
 
