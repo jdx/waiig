@@ -21,6 +21,9 @@ Parser::Parser(Lexer& lexer)
       std::bind(&Parser::parse_prefix_expression, this);
   prefix_parse_fns[TT::MINUS] =
       std::bind(&Parser::parse_prefix_expression, this);
+  prefix_parse_fns[TT::TRUE]  = std::bind(&Parser::parse_boolean, this);
+  prefix_parse_fns[TT::FALSE] = std::bind(&Parser::parse_boolean, this);
+  prefix_parse_fns[TT::LPAREN] = std::bind(&Parser::parse_grouped_expression, this);
 
   infix_parse_fns[TT::PLUS] =
       std::bind(&Parser::parse_infix_expression, this, _1);
@@ -177,6 +180,21 @@ Parser::ExpressionPtr Parser::parse_infix_expression(ExpressionPtr&& left) {
   auto precedence = cur_precedence();
   next_token();
   exp->right = parse_expression(precedence);
+  return exp;
+}
+
+Parser::ExpressionPtr Parser::parse_boolean() {
+  auto exp   = make_unique<Boolean>(std::move(cur_token));
+  exp->value = cur_token_is(TT::TRUE);
+  return exp;
+}
+
+Parser::ExpressionPtr Parser::parse_grouped_expression() {
+  next_token();
+  auto exp = parse_expression(Precedence::LOWEST);
+
+  if (!expect_peek(TT::RPAREN)) return nullptr;
+
   return exp;
 }
 

@@ -43,6 +43,8 @@ private:
   ExpressionPtr parse_identifier();
   ExpressionPtr parse_prefix_expression();
   ExpressionPtr parse_infix_expression(ExpressionPtr&& left);
+  ExpressionPtr parse_boolean();
+  ExpressionPtr parse_grouped_expression();
 
   void next_token();
   bool cur_token_is(Token::Type type) const;

@@ -2,6 +2,8 @@
 
 #include <fmt/ostream.h>
 
+#include <sstream>
+
 namespace monkey {
 
 using namespace fmt::literals;
@@ -33,8 +35,15 @@ const string& Program::token_literal() const {
   return statements[0]->token_literal();
 }
 ostream& operator<<(ostream& out, const Program& p) {
-  for (const auto& s : p.statements) { out << *s; }
-  return out;
+  return out << p.to_str();
+}
+std::string Program::to_str() const {
+  std::stringstream ss{};
+  for (const auto& s : statements) {
+    // fmt::print("{}\n", s->to_str());
+    ss << *s;
+  }
+  return ss.str();
 }
 //</editor-fold>
 
@@ -63,7 +72,7 @@ ExpressionStatement::ExpressionStatement(Token token)
 
 std::string ExpressionStatement::to_str() const {
   if (!expression) return "";
-  return "{}"_format(*expression);
+  return "{};"_format(*expression);
 }
 
 ReturnStatement::ReturnStatement(Token token)
@@ -93,5 +102,8 @@ InfixExpression::InfixExpression(Token token, ExpressionPtr&& left)
 std::string InfixExpression::to_str() const {
   return "({} {} {})"_format(*left, op, *right);
 }
+
+Boolean::Boolean(Token&& token)
+    : Expression{move(token)} { }
 
 } // namespace monkey

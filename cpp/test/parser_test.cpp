@@ -41,6 +41,19 @@ void test_literal_expression(const Expression& exp, const string& value) {
   REQUIRE(ident.token_literal() == value);
 }
 
+Program parse(string input) {
+  Lexer l{input};
+  Parser p{l};
+  Program program = p.parse_program();
+  check_parser_errors(p);
+  return program;
+}
+
+void test_parse(string input, string expected) {
+  Program program = parse(input);
+  REQUIRE(program.to_str() == expected);
+}
+
 TEST_CASE("parser") {
   SECTION("let statements") {
     Lexer lexer{R"(
@@ -124,8 +137,8 @@ return 993322;
       string str;
     };
     vector<Test> tests = {
-        {"!5;", "!", 5, "(!5)"},
-        {"-15;", "-", 15, "(-15)"},
+        {"!5;", "!", 5, "(!5);"},
+        {"-15;", "-", 15, "(-15);"},
     };
     for (auto tt : tests) {
       Lexer l{tt.input};
@@ -149,18 +162,15 @@ return 993322;
       int right;
       string str;
     };
-    auto tt = GENERATE(Test{"5 + 7;", 5, "+", 7, "(5 + 7)"},
-                       Test{"5 - 7;", 5, "-", 7, "(5 - 7)"},
-                       Test{"5 * 7;", 5, "*", 7, "(5 * 7)"},
-                       Test{"5 / 7;", 5, "/", 7, "(5 / 7)"},
-                       Test{"5 > 7;", 5, ">", 7, "(5 > 7)"},
-                       Test{"5 < 7;", 5, "<", 7, "(5 < 7)"},
-                       Test{"5 == 7;", 5, "==", 7, "(5 == 7)"},
-                       Test{"5 != 7;", 5, "!=", 7, "(5 != 7)"});
-    Lexer l{tt.input};
-    Parser p{l};
-    Program program = p.parse_program();
-    check_parser_errors(p);
+    auto tt         = GENERATE(Test{"5 + 7;", 5, "+", 7, "(5 + 7);"},
+                       Test{"5 - 7;", 5, "-", 7, "(5 - 7);"},
+                       Test{"5 * 7;", 5, "*", 7, "(5 * 7);"},
+                       Test{"5 / 7;", 5, "/", 7, "(5 / 7);"},
+                       Test{"5 > 7;", 5, ">", 7, "(5 > 7);"},
+                       Test{"5 < 7;", 5, "<", 7, "(5 < 7);"},
+                       Test{"5 == 7;", 5, "==", 7, "(5 == 7);"},
+                       Test{"5 != 7;", 5, "!=", 7, "(5 != 7);"});
+    Program program = parse(tt.input);
     REQUIRE(program.statements.size() == 1);
     auto& stmt = dynamic_cast<ExpressionStatement&>(*program.statements[0]);
     auto& exp  = dynamic_cast<InfixExpression&>(*stmt.expression);
@@ -169,4 +179,40 @@ return 993322;
     test_literal_expression(*exp.right, tt.right);
     REQUIRE("{}"_format(program) == tt.str);
   };
+
+  SECTION("boolean expressions") {
+    SECTION("true") {
+      Program program = parse("true;");
+      REQUIRE(program.statements.size() == 1);
+      auto& stmt = dynamic_cast<ExpressionStatement&>(*program.statements[0]);
+      auto& exp  = dynamic_cast<Boolean&>(*stmt.expression);
+      REQUIRE(exp.value == true);
+      REQUIRE("{}"_format(program) == "true;");
+    };
+    SECTION("false") {
+      Program program = parse("false;");
+      REQUIRE(program.statements.size() == 1);
+      auto& stmt = dynamic_cast<ExpressionStatement&>(*program.statements[0]);
+      auto& exp  = dynamic_cast<Boolean&>(*stmt.expression);
+      REQUIRE(exp.value == false);
+      REQUIRE("{}"_format(program) == "false;");
+    };
+  };
 };
+
+TEST_CASE("operator precedence") {
+  test_parse("true;", "true;");
+  test_parse("false;", "false;");
+  test_parse("3 > 5 == false;", "((3 > 5) == false);");
+  test_parse("3 < 5 == true;", "((3 < 5) == true);");
+  test_parse("!true;", "(!true);");
+};
+
+TEST_CASE("grouped expressions") {
+  test_parse("5 + 5 * 2;", "(5 + (5 * 2));");
+  test_parse("(5 + 5) * 2", "((5 + 5) * 2);");
+  test_parse("1 + (2 + 3) + 4", "((1 + (2 + 3)) + 4);");
+  test_parse("2 / (5 + 5)", "(2 / (5 + 5));");
+  test_parse("-(5 + 5)", "(-(5 + 5));");
+  test_parse("!(true == true)", "(!(true == true));");
+}

@@ -32,6 +32,7 @@ struct Program {
   std::vector<std::unique_ptr<Statement>> statements{};
   const std::string& token_literal() const;
   friend std::ostream& operator<<(std::ostream&, const Program&);
+  std::string to_str() const;
 };
 
 struct Identifier : Expression {
@@ -82,6 +83,11 @@ struct InfixExpression : Expression {
   std::unique_ptr<Expression> right;
   explicit InfixExpression(Token token, std::unique_ptr<Expression>&& left);
   std::string to_str() const override;
+};
+
+struct Boolean : Expression {
+  bool value;
+  explicit Boolean(Token&& token);
 };
 
 } // namespace monkey
