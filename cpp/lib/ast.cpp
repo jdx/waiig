@@ -39,16 +39,24 @@ ostream& operator<<(ostream& out, const Program& p) {
 }
 std::string Program::to_str() const {
   std::stringstream ss{};
-  for (const auto& s : statements) {
-    // fmt::print("{}\n", s->to_str());
-    ss << *s;
-  }
+  for (const auto& s : statements) ss << *s;
   return ss.str();
 }
 //</editor-fold>
 
 Statement::Statement(Token&& token)
     : Node(move(token)) { }
+
+BlockStatement::BlockStatement(Token&& token)
+    : Statement(move(token)) { }
+
+std::string BlockStatement::to_str() const {
+  std::stringstream ss{};
+  ss << "{";
+  for (const auto& s : statements) ss << " " << *s;
+  ss << " }";
+  return ss.str();
+}
 
 Expression::Expression(Token&& token)
     : Node(move(token)) { }
@@ -72,7 +80,7 @@ ExpressionStatement::ExpressionStatement(Token token)
 
 std::string ExpressionStatement::to_str() const {
   if (!expression) return "";
-  return "{};"_format(*expression);
+  return "{}"_format(*expression);
 }
 
 ReturnStatement::ReturnStatement(Token token)
@@ -106,4 +114,13 @@ std::string InfixExpression::to_str() const {
 Boolean::Boolean(Token&& token)
     : Expression{move(token)} { }
 
+std::string IfExpression::to_str() const {
+  if (alternative) {
+    return "if {} {} else {}"_format(*condition, *consequence, *alternative);
+  } else {
+    return "if {} {}"_format(*condition, *consequence);
+  }
+}
+IfExpression::IfExpression(Token&& token)
+    : Expression{move(token)} { }
 } // namespace monkey

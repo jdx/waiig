@@ -4,6 +4,7 @@
 
 using namespace fmt::literals;
 using std::make_unique;
+using std::move;
 using std::unique_ptr;
 
 namespace monkey {
@@ -23,7 +24,9 @@ Parser::Parser(Lexer& lexer)
       std::bind(&Parser::parse_prefix_expression, this);
   prefix_parse_fns[TT::TRUE]  = std::bind(&Parser::parse_boolean, this);
   prefix_parse_fns[TT::FALSE] = std::bind(&Parser::parse_boolean, this);
-  prefix_parse_fns[TT::LPAREN] = std::bind(&Parser::parse_grouped_expression, this);
+  prefix_parse_fns[TT::LPAREN] =
+      std::bind(&Parser::parse_grouped_expression, this);
+  prefix_parse_fns[TT::IF] = std::bind(&Parser::parse_if_expression, this);
 
   infix_parse_fns[TT::PLUS] =
       std::bind(&Parser::parse_infix_expression, this, _1);
@@ -196,6 +199,36 @@ Parser::ExpressionPtr Parser::parse_grouped_expression() {
   if (!expect_peek(TT::RPAREN)) return nullptr;
 
   return exp;
+}
+
+Parser::ExpressionPtr Parser::parse_if_expression() {
+  auto exp = make_unique<IfExpression>(std::move(cur_token));
+  if (!expect_peek(Token::Type::LPAREN)) return nullptr;
+  next_token();
+  exp->condition = parse_expression(Precedence::LOWEST);
+  if (!expect_peek(Token::Type::RPAREN)) { return nullptr; }
+  if (!expect_peek(Token::Type::LBRACE)) { return nullptr; }
+  exp->consequence = parse_block_statement();
+
+  if (peek_token_is(Token::Type::ELSE)) {
+    next_token();
+    if (!expect_peek(Token::Type::LBRACE)) return nullptr;
+    exp->alternative = parse_block_statement();
+  }
+
+  return exp;
+}
+
+unique_ptr<BlockStatement> Parser::parse_block_statement() {
+  auto block = make_unique<BlockStatement>(move(cur_token));
+  next_token();
+  while (!cur_token_is(Token::Type::RBRACE)
+         && !cur_token_is(Token::Type::EOF_)) {
+    auto stmt = parse_statement();
+    if (stmt) { block->statements.push_back(move(stmt)); }
+    next_token();
+  }
+  return block;
 }
 
 } // namespace monkey

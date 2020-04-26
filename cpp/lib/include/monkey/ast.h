@@ -35,6 +35,12 @@ struct Program {
   std::string to_str() const;
 };
 
+struct BlockStatement : Statement {
+  std::vector<std::unique_ptr<Statement>> statements{};
+  explicit BlockStatement(Token&& token);
+  std::string to_str() const;
+};
+
 struct Identifier : Expression {
   explicit Identifier(Token token);
 
@@ -88,6 +94,16 @@ struct InfixExpression : Expression {
 struct Boolean : Expression {
   bool value;
   explicit Boolean(Token&& token);
+};
+
+struct IfExpression : Expression {
+  explicit IfExpression(Token&& token);
+
+  std::unique_ptr<Expression> condition;
+  std::unique_ptr<BlockStatement> consequence;
+  std::unique_ptr<BlockStatement> alternative;
+
+  std::string to_str() const override;
 };
 
 } // namespace monkey

@@ -137,8 +137,8 @@ return 993322;
       string str;
     };
     vector<Test> tests = {
-        {"!5;", "!", 5, "(!5);"},
-        {"-15;", "-", 15, "(-15);"},
+        {"!5;", "!", 5, "(!5)"},
+        {"-15;", "-", 15, "(-15)"},
     };
     for (auto tt : tests) {
       Lexer l{tt.input};
@@ -162,14 +162,14 @@ return 993322;
       int right;
       string str;
     };
-    auto tt         = GENERATE(Test{"5 + 7;", 5, "+", 7, "(5 + 7);"},
-                       Test{"5 - 7;", 5, "-", 7, "(5 - 7);"},
-                       Test{"5 * 7;", 5, "*", 7, "(5 * 7);"},
-                       Test{"5 / 7;", 5, "/", 7, "(5 / 7);"},
-                       Test{"5 > 7;", 5, ">", 7, "(5 > 7);"},
-                       Test{"5 < 7;", 5, "<", 7, "(5 < 7);"},
-                       Test{"5 == 7;", 5, "==", 7, "(5 == 7);"},
-                       Test{"5 != 7;", 5, "!=", 7, "(5 != 7);"});
+    auto tt         = GENERATE(Test{"5 + 7;", 5, "+", 7, "(5 + 7)"},
+                       Test{"5 - 7;", 5, "-", 7, "(5 - 7)"},
+                       Test{"5 * 7;", 5, "*", 7, "(5 * 7)"},
+                       Test{"5 / 7;", 5, "/", 7, "(5 / 7)"},
+                       Test{"5 > 7;", 5, ">", 7, "(5 > 7)"},
+                       Test{"5 < 7;", 5, "<", 7, "(5 < 7)"},
+                       Test{"5 == 7;", 5, "==", 7, "(5 == 7)"},
+                       Test{"5 != 7;", 5, "!=", 7, "(5 != 7)"});
     Program program = parse(tt.input);
     REQUIRE(program.statements.size() == 1);
     auto& stmt = dynamic_cast<ExpressionStatement&>(*program.statements[0]);
@@ -186,33 +186,55 @@ return 993322;
       REQUIRE(program.statements.size() == 1);
       auto& stmt = dynamic_cast<ExpressionStatement&>(*program.statements[0]);
       auto& exp  = dynamic_cast<Boolean&>(*stmt.expression);
-      REQUIRE(exp.value == true);
-      REQUIRE("{}"_format(program) == "true;");
+      REQUIRE(exp.value);
+      REQUIRE("{}"_format(program) == "true");
     };
     SECTION("false") {
       Program program = parse("false;");
       REQUIRE(program.statements.size() == 1);
       auto& stmt = dynamic_cast<ExpressionStatement&>(*program.statements[0]);
       auto& exp  = dynamic_cast<Boolean&>(*stmt.expression);
-      REQUIRE(exp.value == false);
-      REQUIRE("{}"_format(program) == "false;");
+      REQUIRE_FALSE(exp.value);
+      REQUIRE("{}"_format(program) == "false");
     };
   };
 };
 
 TEST_CASE("operator precedence") {
-  test_parse("true;", "true;");
-  test_parse("false;", "false;");
-  test_parse("3 > 5 == false;", "((3 > 5) == false);");
-  test_parse("3 < 5 == true;", "((3 < 5) == true);");
-  test_parse("!true;", "(!true);");
+  test_parse("true;", "true");
+  test_parse("false;", "false");
+  test_parse("3 > 5 == false;", "((3 > 5) == false)");
+  test_parse("3 < 5 == true;", "((3 < 5) == true)");
+  test_parse("!true;", "(!true)");
 };
 
 TEST_CASE("grouped expressions") {
-  test_parse("5 + 5 * 2;", "(5 + (5 * 2));");
-  test_parse("(5 + 5) * 2", "((5 + 5) * 2);");
-  test_parse("1 + (2 + 3) + 4", "((1 + (2 + 3)) + 4);");
-  test_parse("2 / (5 + 5)", "(2 / (5 + 5));");
-  test_parse("-(5 + 5)", "(-(5 + 5));");
-  test_parse("!(true == true)", "(!(true == true));");
+  test_parse("5 + 5 * 2;", "(5 + (5 * 2))");
+  test_parse("(5 + 5) * 2", "((5 + 5) * 2)");
+  test_parse("1 + (2 + 3) + 4", "((1 + (2 + 3)) + 4)");
+  test_parse("2 / (5 + 5)", "(2 / (5 + 5))");
+  test_parse("-(5 + 5)", "(-(5 + 5))");
+  test_parse("!(true == true)", "(!(true == true))");
+}
+
+TEST_CASE("if expression") {
+  Program program = parse("if (x < y) { x }");
+  REQUIRE(program.statements.size() == 1);
+  auto& stmt = dynamic_cast<ExpressionStatement&>(*program.statements[0]);
+  auto& exp  = dynamic_cast<IfExpression&>(*stmt.expression);
+  REQUIRE(exp.condition->to_str() == "(x < y)");
+  REQUIRE(exp.consequence->to_str() == "{ x }");
+  REQUIRE(exp.alternative == nullptr);
+  REQUIRE(program.to_str() == "if (x < y) { x }");
+}
+
+TEST_CASE("if expression w/ alternative") {
+  Program program = parse("if (x < y) { x } else { y }");
+  REQUIRE(program.statements.size() == 1);
+  auto& stmt = dynamic_cast<ExpressionStatement&>(*program.statements[0]);
+  auto& exp  = dynamic_cast<IfExpression&>(*stmt.expression);
+  REQUIRE(exp.condition->to_str() == "(x < y)");
+  REQUIRE(exp.consequence->to_str() == "{ x }");
+  REQUIRE(exp.alternative->to_str() == "{ y }");
+  REQUIRE(program.to_str() == "if (x < y) { x } else { y }");
 }
