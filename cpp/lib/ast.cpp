@@ -57,8 +57,12 @@ std::string LetStatement::to_str() const {
       token_literal(), *name, value ? "{}"_format(*value) : "");
 }
 
+ExpressionStatement::ExpressionStatement(Token token)
+    : Statement{move(token)} { }
+
 ExpressionStatement::ExpressionStatement(Token&& token)
     : Statement{move(token)} { }
+
 std::string ExpressionStatement::to_str() const {
   if (!expression) return "";
   return "{}"_format(*expression);

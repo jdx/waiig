@@ -13,7 +13,16 @@ using TT = Token::Type;
 Parser::Parser(Lexer& lexer)
     : lexer{lexer}
     , cur_token{lexer.next_token()}
-    , peek_token{lexer.next_token()} { }
+    , peek_token{lexer.next_token()} {
+  prefix_parse_fns[TT::IDENT] = std::bind(&Parser::parse_identifier, this);
+}
+
+void Parser::register_prefix(Token::Type type, Parser::PrefixParseFn fn) {
+  prefix_parse_fns[type] = fn;
+}
+void Parser::register_infix(Token::Type type, Parser::InfixParseFn fn) {
+  infix_parse_fns[type] = fn;
+}
 
 void Parser::next_token() {
   cur_token  = move(peek_token);
@@ -31,19 +40,12 @@ Program Parser::parse_program() {
 
 unique_ptr<Statement> Parser::parse_statement() {
   switch (cur_token.type) {
-  case Token::Type::LET: {
-    return parse_let_statement();
-  }
-  case Token::Type::RETURN: {
-    return parse_return_statement();
-  }
-  default: {
-    // print("invalid token: {}\n", cur_token);
-    return nullptr;
-  }
+  case Token::Type::LET: return parse_let_statement();
+  case Token::Type::RETURN: return parse_return_statement();
+  default: return parse_expression_statement();
   }
 }
-std::unique_ptr<LetStatement> Parser::parse_let_statement() {
+unique_ptr<LetStatement> Parser::parse_let_statement() {
   auto stmt = make_unique<LetStatement>(move(cur_token));
   if (!expect_peek(TT::IDENT)) { return nullptr; }
   stmt->name = make_unique<Identifier>(move(cur_token));
@@ -52,10 +54,25 @@ std::unique_ptr<LetStatement> Parser::parse_let_statement() {
   return stmt;
 }
 
-std::unique_ptr<ReturnStatement> Parser::parse_return_statement() {
+unique_ptr<ReturnStatement> Parser::parse_return_statement() {
   auto stmt = make_unique<ReturnStatement>(move(cur_token));
-  while(cur_token_is(TT::SEMICOLON)) next_token();
+  while (!cur_token_is(TT::SEMICOLON)) next_token();
   return stmt;
+}
+
+unique_ptr<ExpressionStatement> Parser::parse_expression_statement() {
+  auto stmt        = make_unique<ExpressionStatement>(cur_token);
+  stmt->expression = parse_expression(Precedence::LOWEST);
+
+  if (peek_token_is(TT::SEMICOLON)) { next_token(); }
+  return stmt;
+}
+
+unique_ptr<Expression> Parser::parse_expression(Precedence precedence) {
+  auto fn = prefix_parse_fns.find(cur_token.type);
+  if (fn == prefix_parse_fns.end()) { return nullptr; }
+  auto left_exp = fn->second();
+  return left_exp;
 }
 
 bool Parser::cur_token_is(Token::Type type) const {
@@ -77,6 +94,10 @@ bool Parser::expect_peek(Token::Type type) {
 void Parser::peek_error(TT expected) {
   errors.push_back("expected next token to be {} but got {}"_format(
       expected, peek_token.type));
+}
+Parser::ExpressionPtr Parser::parse_identifier() {
+  auto exp = make_unique<Identifier>(move(cur_token));
+  return exp;
 }
 
 } // namespace monkey

@@ -71,13 +71,24 @@ return 993322;
   };
 
   SECTION("to_str") {
-    auto lstmt = make_unique<LetStatement>(Token{Token::Type::LET, "let"});
-    lstmt->name =
-        make_unique<Identifier>(Token{Token::Type::IDENT, "myVar"});
+    auto lstmt  = make_unique<LetStatement>(Token{Token::Type::LET, "let"});
+    lstmt->name = make_unique<Identifier>(Token{Token::Type::IDENT, "myVar"});
     lstmt->value =
         make_unique<Identifier>(Token{Token::Type::IDENT, "anotherVar"});
     Program p{};
     p.statements.push_back(std::move(lstmt));
     REQUIRE("{}"_format(p) == "let myVar = anotherVar;");
   };
+};
+
+TEST_CASE("identifier expression") {
+  Lexer l{"foobar;"};
+  Parser p{l};
+  Program program = p.parse_program();
+  check_parser_errors(p);
+  REQUIRE(program.statements.size() == 1);
+  auto& stmt = dynamic_cast<ExpressionStatement&>(*program.statements[0]);
+  auto& ident = dynamic_cast<Identifier&>(*stmt.expression);
+  REQUIRE(ident.value == "foobar");
+  REQUIRE(ident.token_literal() == "foobar");
 };

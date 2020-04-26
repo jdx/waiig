@@ -43,7 +43,6 @@ struct Identifier : Expression {
 };
 
 struct LetStatement : Statement {
-  Token token;
   std::unique_ptr<Identifier> name{};
   std::unique_ptr<Expression> value{};
   explicit LetStatement(Token&& token);
@@ -52,7 +51,6 @@ struct LetStatement : Statement {
 };
 
 struct ReturnStatement : Statement {
-  Token token;
   std::unique_ptr<Expression> return_value;
   explicit ReturnStatement(Token&& token);
 
@@ -60,8 +58,8 @@ struct ReturnStatement : Statement {
 };
 
 struct ExpressionStatement : Statement {
-  Token token;
   std::unique_ptr<Expression> expression;
+  explicit ExpressionStatement(Token token);
   explicit ExpressionStatement(Token&& token);
 
   std::string to_str() const override;
