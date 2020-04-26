@@ -19,12 +19,12 @@ Node::Node(Token&& token)
 const string& Node::token_literal() const {
   return token.literal;
 }
-std::string Node::to_str() const {
-  return token_literal();
-}
 
 ostream& operator<<(ostream& out, const Node& n) {
-  return out << n.to_str();
+  return n.print(out);
+}
+std::ostream& Node::print(ostream& out) const {
+  return out << token_literal();
 }
 //</editor-fold>
 
@@ -35,12 +35,8 @@ const string& Program::token_literal() const {
   return statements[0]->token_literal();
 }
 ostream& operator<<(ostream& out, const Program& p) {
-  return out << p.to_str();
-}
-std::string Program::to_str() const {
-  std::stringstream ss{};
-  for (const auto& s : statements) ss << *s;
-  return ss.str();
+  for (const auto& s : p.statements) out << *s;
+  return out;
 }
 //</editor-fold>
 
@@ -50,12 +46,10 @@ Statement::Statement(Token&& token)
 BlockStatement::BlockStatement(Token&& token)
     : Statement(move(token)) { }
 
-std::string BlockStatement::to_str() const {
-  std::stringstream ss{};
-  ss << "{";
-  for (const auto& s : statements) ss << " " << *s;
-  ss << " }";
-  return ss.str();
+std::ostream& BlockStatement::print(ostream& out) const {
+  out << "{";
+  for (const auto& s : statements) out << " " << *s;
+  return out << " }";
 }
 
 Expression::Expression(Token&& token)
@@ -64,31 +58,35 @@ Expression::Expression(Token&& token)
 Identifier::Identifier(Token token)
     : Expression{move(token)}
     , value{this->token.literal} { }
-std::string Identifier::to_str() const {
-  return value;
+
+std::ostream& Identifier::print(ostream& out) const {
+  return out << value;
 }
 
 LetStatement::LetStatement(Token token)
     : Statement{move(token)} { }
-std::string LetStatement::to_str() const {
-  return "{} {} = {};"_format(
-      token_literal(), *name, value ? "{}"_format(*value) : "");
+
+std::ostream& LetStatement::print(ostream& out) const {
+  out << token_literal() << " " << *name << " = ";
+  if (value) out << *value;
+  return out << ";";
 }
 
 ExpressionStatement::ExpressionStatement(Token token)
     : Statement{move(token)} { }
 
-std::string ExpressionStatement::to_str() const {
-  if (!expression) return "";
-  return "{}"_format(*expression);
+std::ostream& ExpressionStatement::print(ostream& out) const {
+  if (expression) out << *expression;
+  return out;
 }
 
 ReturnStatement::ReturnStatement(Token token)
     : Statement{move(token)} { }
 
-std::string ReturnStatement::to_str() const {
-  return "{} {};"_format(token_literal(),
-                         return_value ? "{}"_format(*return_value) : "");
+std::ostream& ReturnStatement::print(ostream& out) const {
+  return out << token_literal() << " ";
+  if (return_value) out << *return_value;
+  return out << ";";
 }
 
 IntegerLiteral::IntegerLiteral(Token token)
@@ -98,8 +96,8 @@ PrefixExpression::PrefixExpression(Token token)
     : Expression{move(token)}
     , op{this->token.literal} { }
 
-std::string PrefixExpression::to_str() const {
-  return "({}{})"_format(op, *right);
+std::ostream& PrefixExpression::print(ostream& out) const {
+  return out << "(" << op << *right << ")";
 }
 
 InfixExpression::InfixExpression(Token token, ExpressionPtr&& left)
@@ -107,20 +105,33 @@ InfixExpression::InfixExpression(Token token, ExpressionPtr&& left)
     , op{this->token.literal}
     , left{move(left)} { }
 
-std::string InfixExpression::to_str() const {
-  return "({} {} {})"_format(*left, op, *right);
+std::ostream& InfixExpression::print(ostream& out) const {
+  return out << "(" << *left << " " << op << " " << *right << ")";
 }
 
 Boolean::Boolean(Token&& token)
     : Expression{move(token)} { }
 
-std::string IfExpression::to_str() const {
-  if (alternative) {
-    return "if {} {} else {}"_format(*condition, *consequence, *alternative);
-  } else {
-    return "if {} {}"_format(*condition, *consequence);
-  }
+std::ostream& IfExpression::print(ostream& out) const {
+  out << "if " << *condition << " " << *consequence;
+  if (alternative) out << " else " << *alternative;
+  return out;
 }
 IfExpression::IfExpression(Token&& token)
     : Expression{move(token)} { }
+
+FunctionLiteral::FunctionLiteral(Token&& token)
+    : Expression{move(token)} { }
+
+std::ostream& FunctionLiteral::print(ostream& out) const {
+  out << token_literal() << "(";
+  bool first{true};
+  for (auto& p : parameters) {
+    if (!first) out << ", ";
+    out << p;
+    if (first) first = false;
+  }
+  return out << ") " << body;
+}
+
 } // namespace monkey

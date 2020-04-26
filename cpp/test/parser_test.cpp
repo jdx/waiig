@@ -51,7 +51,7 @@ Program parse(string input) {
 
 void test_parse(string input, string expected) {
   Program program = parse(input);
-  REQUIRE(program.to_str() == expected);
+  REQUIRE("{}"_format(program) == expected);
 }
 
 TEST_CASE("parser") {
@@ -222,10 +222,10 @@ TEST_CASE("if expression") {
   REQUIRE(program.statements.size() == 1);
   auto& stmt = dynamic_cast<ExpressionStatement&>(*program.statements[0]);
   auto& exp  = dynamic_cast<IfExpression&>(*stmt.expression);
-  REQUIRE(exp.condition->to_str() == "(x < y)");
-  REQUIRE(exp.consequence->to_str() == "{ x }");
+  REQUIRE("{}"_format(*exp.condition) == "(x < y)");
+  REQUIRE("{}"_format(*exp.consequence) == "{ x }");
   REQUIRE(exp.alternative == nullptr);
-  REQUIRE(program.to_str() == "if (x < y) { x }");
+  REQUIRE("{}"_format(program) == "if (x < y) { x }");
 }
 
 TEST_CASE("if expression w/ alternative") {
@@ -233,8 +233,8 @@ TEST_CASE("if expression w/ alternative") {
   REQUIRE(program.statements.size() == 1);
   auto& stmt = dynamic_cast<ExpressionStatement&>(*program.statements[0]);
   auto& exp  = dynamic_cast<IfExpression&>(*stmt.expression);
-  REQUIRE(exp.condition->to_str() == "(x < y)");
-  REQUIRE(exp.consequence->to_str() == "{ x }");
-  REQUIRE(exp.alternative->to_str() == "{ y }");
-  REQUIRE(program.to_str() == "if (x < y) { x } else { y }");
+  REQUIRE("{}"_format(*exp.condition) == "(x < y)");
+  REQUIRE("{}"_format(*exp.consequence) == "{ x }");
+  REQUIRE("{}"_format(*exp.alternative) == "{ y }");
+  REQUIRE("{}"_format(program) == "if (x < y) { x } else { y }");
 }
