@@ -8,6 +8,7 @@ using namespace fmt::literals;
 using std::move;
 using std::ostream;
 using std::string;
+using ExpressionPtr = std::unique_ptr<Expression>;
 
 //<editor-fold desc="Node">
 Node::Node(Token&& token)
@@ -43,14 +44,14 @@ Statement::Statement(Token&& token)
 Expression::Expression(Token&& token)
     : Node(move(token)) { }
 
-Identifier::Identifier(Token&& token)
+Identifier::Identifier(Token token)
     : Expression{move(token)}
     , value{this->token.literal} { }
 std::string Identifier::to_str() const {
   return value;
 }
 
-LetStatement::LetStatement(Token&& token)
+LetStatement::LetStatement(Token token)
     : Statement{move(token)} { }
 std::string LetStatement::to_str() const {
   return "{} {} = {};"_format(
@@ -60,19 +61,37 @@ std::string LetStatement::to_str() const {
 ExpressionStatement::ExpressionStatement(Token token)
     : Statement{move(token)} { }
 
-ExpressionStatement::ExpressionStatement(Token&& token)
-    : Statement{move(token)} { }
-
 std::string ExpressionStatement::to_str() const {
   if (!expression) return "";
   return "{}"_format(*expression);
 }
 
-ReturnStatement::ReturnStatement(Token&& token)
+ReturnStatement::ReturnStatement(Token token)
     : Statement{move(token)} { }
+
 std::string ReturnStatement::to_str() const {
   return "{} {};"_format(token_literal(),
                          return_value ? "{}"_format(*return_value) : "");
+}
+
+IntegerLiteral::IntegerLiteral(Token token)
+    : Expression{move(token)} { }
+
+PrefixExpression::PrefixExpression(Token token)
+    : Expression{move(token)}
+    , op{this->token.literal} { }
+
+std::string PrefixExpression::to_str() const {
+  return "({}{})"_format(op, *right);
+}
+
+InfixExpression::InfixExpression(Token token, ExpressionPtr&& left)
+    : Expression{move(token)}
+    , op{this->token.literal}
+    , left{move(left)} { }
+
+std::string InfixExpression::to_str() const {
+  return "({} {} {})"_format(*left, op, *right);
 }
 
 } // namespace monkey

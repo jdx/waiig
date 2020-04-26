@@ -20,7 +20,7 @@ struct Parser {
 private:
   using ExpressionPtr = std::unique_ptr<Expression>;
   using PrefixParseFn = std::function<ExpressionPtr()>;
-  using InfixParseFn  = std::function<ExpressionPtr(ExpressionPtr)>;
+  using InfixParseFn  = std::function<ExpressionPtr(ExpressionPtr&&)>;
   enum class Precedence {
     LOWEST,
     EQUALS,      ///< ==
@@ -31,22 +31,30 @@ private:
     CALL,        ///< myFunction(X)
   };
 
+  std::unordered_map<Token::Type, PrefixParseFn> prefix_parse_fns{};
+  std::unordered_map<Token::Type, InfixParseFn> infix_parse_fns{};
+
   std::unique_ptr<Statement> parse_statement();
   std::unique_ptr<LetStatement> parse_let_statement();
   std::unique_ptr<ReturnStatement> parse_return_statement();
   std::unique_ptr<ExpressionStatement> parse_expression_statement();
   std::unique_ptr<Expression> parse_expression(Precedence precedence);
-  std::unordered_map<Token::Type, PrefixParseFn> prefix_parse_fns{};
-  std::unordered_map<Token::Type, InfixParseFn> infix_parse_fns{};
+  std::unique_ptr<IntegerLiteral> parse_integer_literal();
+  ExpressionPtr parse_identifier();
+  ExpressionPtr parse_prefix_expression();
+  ExpressionPtr parse_infix_expression(ExpressionPtr&& left);
 
-  void register_prefix(Token::Type type, PrefixParseFn fn);
-  void register_infix(Token::Type type, InfixParseFn fn);
   void next_token();
   bool cur_token_is(Token::Type type) const;
   bool peek_token_is(Token::Type type) const;
   bool expect_peek(Token::Type type);
   void peek_error(Token::Type type);
-  ExpressionPtr parse_identifier();
+  void no_prefix_parse_fn_error(Token::Type type);
+
+  static std::unordered_map<Token::Type, Precedence> precedences;
+
+  Precedence peek_precedence();
+  Precedence cur_precedence();
 };
 
 } // namespace monkey

@@ -35,7 +35,7 @@ struct Program {
 };
 
 struct Identifier : Expression {
-  explicit Identifier(Token&& token);
+  explicit Identifier(Token token);
 
   const std::string& value;
 
@@ -45,14 +45,14 @@ struct Identifier : Expression {
 struct LetStatement : Statement {
   std::unique_ptr<Identifier> name{};
   std::unique_ptr<Expression> value{};
-  explicit LetStatement(Token&& token);
+  explicit LetStatement(Token token);
 
   std::string to_str() const override;
 };
 
 struct ReturnStatement : Statement {
   std::unique_ptr<Expression> return_value;
-  explicit ReturnStatement(Token&& token);
+  explicit ReturnStatement(Token token);
 
   std::string to_str() const override;
 };
@@ -60,8 +60,27 @@ struct ReturnStatement : Statement {
 struct ExpressionStatement : Statement {
   std::unique_ptr<Expression> expression;
   explicit ExpressionStatement(Token token);
-  explicit ExpressionStatement(Token&& token);
 
+  std::string to_str() const override;
+};
+
+struct IntegerLiteral : Expression {
+  int value;
+  explicit IntegerLiteral(Token token);
+};
+
+struct PrefixExpression : Expression {
+  std::string op;
+  std::unique_ptr<Expression> right;
+  explicit PrefixExpression(Token token);
+  std::string to_str() const override;
+};
+
+struct InfixExpression : Expression {
+  std::string op;
+  std::unique_ptr<Expression> left;
+  std::unique_ptr<Expression> right;
+  explicit InfixExpression(Token token, std::unique_ptr<Expression>&& left);
   std::string to_str() const override;
 };
 
