@@ -29,10 +29,16 @@ void test_let_statement(const Statement& stmt,
   REQUIRE(lstmt.name->token_literal() == expected_identifier);
 }
 
-void test_integer_literal(const Expression& exp, const int value) {
+void test_literal_expression(const Expression& exp, const int value) {
   auto& il = dynamic_cast<const IntegerLiteral&>(exp);
   REQUIRE(il.value == value);
   REQUIRE(il.token_literal() == std::to_string(value));
+}
+
+void test_literal_expression(const Expression& exp, const string& value) {
+  auto& ident = dynamic_cast<const Identifier&>(exp);
+  REQUIRE(ident.value == value);
+  REQUIRE(ident.token_literal() == value);
 }
 
 TEST_CASE("parser") {
@@ -130,7 +136,7 @@ return 993322;
       auto& stmt = dynamic_cast<ExpressionStatement&>(*program.statements[0]);
       auto& exp  = dynamic_cast<PrefixExpression&>(*stmt.expression);
       REQUIRE(exp.op == tt.op);
-      test_integer_literal(*exp.right, tt.value);
+      test_literal_expression(*exp.right, tt.value);
       REQUIRE("{}"_format(program) == tt.str);
     }
   };
@@ -159,8 +165,8 @@ return 993322;
     auto& stmt = dynamic_cast<ExpressionStatement&>(*program.statements[0]);
     auto& exp  = dynamic_cast<InfixExpression&>(*stmt.expression);
     REQUIRE(exp.op == tt.op);
-    test_integer_literal(*exp.left, tt.left);
-    test_integer_literal(*exp.right, tt.right);
+    test_literal_expression(*exp.left, tt.left);
+    test_literal_expression(*exp.right, tt.right);
     REQUIRE("{}"_format(program) == tt.str);
   };
 };
