@@ -1,14 +1,15 @@
-pub struct Lexer {
+pub struct Lexer<'a> {
     input: String,
+    chars: std::str::Chars<'a>,
 }
 
-impl Lexer {
-    pub fn new(input: String) -> Lexer {
-        Lexer { input }
+impl<'a> Lexer<'a> {
+    pub fn new(input: String) -> Lexer<'a> {
+        Lexer { input, chars: input.chars() }
     }
 
-    pub fn next_token(&self) -> String {
-        return String::from("x");
+    pub fn next_token(&mut self) -> Option<char> {
+        return self.chars.next();
     }
 }
 
@@ -16,9 +17,14 @@ impl Lexer {
 mod tests {
     use super::*;
 
+    fn lex_all(input: &str) -> Vec<String> {
+        let lex = Lexer::new(String::from(input));
+        let tokens = vec![];
+        return tokens;
+    }
+
     #[test]
     fn it_works() {
-        let lex = Lexer::new(String::from("foo"));
-        assert_eq!(lex.next_token(), "x");
+        assert_eq!(lex_all("=+(){},;"), vec![String::from("=")]);
     }
 }
