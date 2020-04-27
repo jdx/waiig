@@ -48,4 +48,23 @@ TEST_CASE("evaluator") {
       REQUIRE_FALSE(i.value);
     };
   };
+  SECTION("bang") {
+    struct Test {
+      string input;
+      bool expected;
+    };
+    std::vector<Test> tests {
+        {"!true", false},
+        {"!false", true},
+        {"!5", false},
+        {"!!true", true},
+        {"!!false", false},
+        {"!!5", true},
+    };
+    for (auto&& tt : tests) {
+      auto e = test_eval_node(tt.input);
+      auto i = dynamic_cast<object::Boolean&>(*e);
+      REQUIRE(i.value == tt.expected);
+    }
+  };
 }
