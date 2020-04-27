@@ -13,9 +13,11 @@ namespace types {
 } // namespace types
 
 struct Object {
-  virtual ~Object()             = default;
-  virtual const Type& type()    = 0;
-  virtual std::string Inspect() = 0;
+  virtual ~Object()                   = default;
+  virtual const Type& type()          = 0;
+  virtual std::string inspect() const = 0;
+
+  friend std::ostream& operator<<(std::ostream& out, const Object&);
 };
 
 struct Integer : Object {
@@ -23,8 +25,7 @@ struct Integer : Object {
 
   explicit Integer(int value);
   const Type& type() override;
-  std::string Inspect() override;
-
+  std::string inspect() const override;
 };
 
 struct Boolean : Object {
@@ -32,12 +33,12 @@ struct Boolean : Object {
 
   explicit Boolean(bool value);
   const Type& type() override;
-  std::string Inspect() override;
+  std::string inspect() const override;
 };
 
 struct Null : Object {
   const Type& type() override;
-  std::string Inspect() override;
+  std::string inspect() const override;
 };
 
 } // namespace monkey::object

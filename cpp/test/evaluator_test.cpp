@@ -20,13 +20,32 @@ unique_ptr<object::Object> test_eval_node(string input) {
 }
 
 string test_eval(string input) {
-  return test_eval_node(input)->Inspect();
+  return test_eval_node(input)->inspect();
 }
 
 TEST_CASE("evaluator") {
   SECTION("integer") {
-    auto e = test_eval_node("5");
-    auto i = dynamic_cast<object::Integer&>(*e);
-    REQUIRE(i.value == 5);
+    SECTION("5") {
+      auto e = test_eval_node("5");
+      auto i = dynamic_cast<object::Integer&>(*e);
+      REQUIRE(i.value == 5);
+    };
+    SECTION("10") {
+      auto e = test_eval_node("10");
+      auto i = dynamic_cast<object::Integer&>(*e);
+      REQUIRE(i.value == 10);
+    };
+  };
+  SECTION("bool") {
+    SECTION("true"){
+      auto e = test_eval_node("true");
+      auto i = dynamic_cast<object::Boolean&>(*e);
+      REQUIRE(i.value);
+    };
+    SECTION("false"){
+      auto e = test_eval_node("false");
+      auto i = dynamic_cast<object::Boolean&>(*e);
+      REQUIRE_FALSE(i.value);
+    };
   };
 }

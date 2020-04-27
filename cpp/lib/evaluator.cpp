@@ -42,6 +42,11 @@ ObjPtr eval(const IntegerLiteral& lit) {
   return make_unique<object::Integer>(lit.value);
 }
 
+ObjPtr eval(const Boolean& b) {
+  fmt::print("evalb.\n");
+  return make_unique<object::Boolean>(b.value);
+}
+
 ObjPtr eval(const Node& node) {
   fmt::print("eval.\n");
 
@@ -49,6 +54,7 @@ ObjPtr eval(const Node& node) {
       {typeid(Program), [](const Node& node){ return eval(dynamic_cast<const Program&>(node)); }},
       {typeid(ExpressionStatement), [](const Node& node){ return eval(dynamic_cast<const ExpressionStatement&>(node)); }},
       {typeid(IntegerLiteral), [](const Node& node){ return eval(dynamic_cast<const IntegerLiteral&>(node)); }},
+      {typeid(Boolean), [](const Node& node){ return eval(dynamic_cast<const Boolean&>(node)); }},
   };
   return lookup[typeid(node)](node);
 }

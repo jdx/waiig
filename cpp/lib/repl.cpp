@@ -1,7 +1,8 @@
 #include "monkey/repl.h"
 
-#include <fmt/ostream.h>
 #include <fmt/color.h>
+#include <fmt/ostream.h>
+#include <monkey/evaluator.h>
 #include <monkey/parser.h>
 
 #include <iostream>
@@ -37,7 +38,7 @@ void start(istream& in, ostream& out) {
       out << PROMPT;
       continue;
     }
-    out << program << endl << PROMPT;
+    out << *eval(program) << endl << PROMPT;
   }
   if (in.bad()) { throw runtime_error{"error reading input"}; }
   out << "\n";
