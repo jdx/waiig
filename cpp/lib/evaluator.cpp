@@ -26,11 +26,21 @@ ObjPtr eval_statements(const vector<unique_ptr<Statement>>& stmts) {
 }
 
 ObjPtr eval_bang_operator_expression(const ObjPtr& right) {
-  if (typeid(*right) == typeid(object::Boolean)) {
-    auto& b = dynamic_cast<object::Boolean&>(*right);
+  const auto& r = *right;
+  if (typeid(r) == typeid(object::Boolean)) {
+    auto& b = dynamic_cast<const object::Boolean&>(r);
     return make_unique<object::Boolean>(!b.value);
   }
   return make_unique<object::Boolean>(false);
+}
+
+ObjPtr eval_minus_operator_expression(const ObjPtr& right) {
+  const auto& r = *right;
+  if (typeid(r) != typeid(object::Integer)) {
+    return make_unique<object::Null>();
+  }
+  auto& i = dynamic_cast<const object::Integer&>(r);
+  return make_unique<object::Integer>(-i.value);
 }
 
 ObjPtr eval(const Program& program) {
@@ -56,6 +66,7 @@ ObjPtr eval(const Boolean& b) {
 ObjPtr eval(const PrefixExpression& b) {
   auto right = eval(*b.right);
   if (b.op == "!") return eval_bang_operator_expression(right);
+  if (b.op == "-") return eval_minus_operator_expression(right);
   return unique_ptr<object::Null>();
 }
 

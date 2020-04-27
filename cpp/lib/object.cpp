@@ -31,7 +31,7 @@ const Type& Boolean::type() {
 }
 
 std::string Boolean::inspect() const {
-  return std::to_string(value);
+  return value ? "true" : "false";
 }
 
 const Type& Null::type() {

@@ -67,4 +67,21 @@ TEST_CASE("evaluator") {
       REQUIRE(i.value == tt.expected);
     }
   };
+  SECTION("negative") {
+    struct Test {
+      string input;
+      int expected;
+    };
+    std::vector<Test> tests {
+        {"5", 5},
+        {"10", 10},
+        {"-5", -5},
+        {"-10", -10},
+    };
+    for (auto&& tt : tests) {
+      auto e = test_eval_node(tt.input);
+      auto i = dynamic_cast<object::Integer&>(*e);
+      REQUIRE(i.value == tt.expected);
+    }
+  };
 }
