@@ -22,11 +22,13 @@ void check_parser_errors(const Parser& parser) {
 }
 
 void test_let_statement(const Statement& stmt,
-                        const string& expected_identifier) {
+                        const string& expected_identifier,
+                        const int val) {
   REQUIRE(stmt.token_literal() == "let");
   auto& lstmt = dynamic_cast<const LetStatement&>(stmt);
   REQUIRE(lstmt.name->value == expected_identifier);
   REQUIRE(lstmt.name->token_literal() == expected_identifier);
+  REQUIRE(dynamic_cast<IntegerLiteral&>(*lstmt.value).value == val);
 }
 
 void test_literal_expression(const Expression& exp, const int value) {
@@ -67,15 +69,16 @@ let foobar = 838383;
     check_parser_errors(parser);
     struct Test {
       string expected_identifier;
+      int val;
     };
     auto tests = vector<Test>{
-        {"x"},
-        {"y"},
-        {"foobar"},
+        {"x", 5},
+        {"y", 10},
+        {"foobar", 838383},
     };
     for (auto&& [i, tt] : tests | enumerate) {
       Statement& stmt = *program.statements[i];
-      test_let_statement(stmt, tt.expected_identifier);
+      test_let_statement(stmt, tt.expected_identifier, tt.val);
     }
   };
   SECTION("return statements") {
@@ -255,16 +258,16 @@ TEST_CASE("function literal") {
 TEST_CASE("function literals") {
   SECTION("no params") {
     Program program = parse("fn() {};");
-    auto& stmt      = dynamic_cast<ExpressionStatement&>(*program.statements[0]);
-    auto& exp       = dynamic_cast<FunctionLiteral&>(*stmt.expression);
+    auto& stmt = dynamic_cast<ExpressionStatement&>(*program.statements[0]);
+    auto& exp  = dynamic_cast<FunctionLiteral&>(*stmt.expression);
 
     REQUIRE(exp.parameters.size() == 0);
   };
 
   SECTION("1 param") {
     Program program = parse("fn(x) {};");
-    auto& stmt      = dynamic_cast<ExpressionStatement&>(*program.statements[0]);
-    auto& exp       = dynamic_cast<FunctionLiteral&>(*stmt.expression);
+    auto& stmt = dynamic_cast<ExpressionStatement&>(*program.statements[0]);
+    auto& exp  = dynamic_cast<FunctionLiteral&>(*stmt.expression);
 
     REQUIRE(exp.parameters.size() == 1);
     REQUIRE(exp.parameters[0].value == "x");
@@ -272,12 +275,39 @@ TEST_CASE("function literals") {
 
   SECTION("3 params") {
     Program program = parse("fn(x, y, z) {};");
-    auto& stmt      = dynamic_cast<ExpressionStatement&>(*program.statements[0]);
-    auto& exp       = dynamic_cast<FunctionLiteral&>(*stmt.expression);
+    auto& stmt = dynamic_cast<ExpressionStatement&>(*program.statements[0]);
+    auto& exp  = dynamic_cast<FunctionLiteral&>(*stmt.expression);
 
     REQUIRE(exp.parameters.size() == 3);
     REQUIRE(exp.parameters[0].value == "x");
     REQUIRE(exp.parameters[1].value == "y");
     REQUIRE(exp.parameters[2].value == "z");
+  };
+}
+
+TEST_CASE("expression parsing") {
+  SECTION("A") {
+    Program program = parse("add(1, 2 * 3, 4 + 5);");
+    auto& stmt = dynamic_cast<ExpressionStatement&>(*program.statements[0]);
+    auto& exp  = dynamic_cast<CallExpression&>(*stmt.expression);
+
+    REQUIRE("{}"_format(exp) == "add(1, (2 * 3), (4 + 5))");
+    REQUIRE(exp.arguments.size() == 3);
+  };
+  SECTION("B") {
+    Program program = parse("a + add(b * c) + d");
+    auto& stmt = dynamic_cast<ExpressionStatement&>(*program.statements[0]);
+    REQUIRE("{}"_format(stmt) == "((a + add((b * c))) + d)");
+  };
+  SECTION("C") {
+    Program program = parse("add(a, b, 1, 2 * 3, 4 + 5, add(6, 7 * 8))");
+    auto& stmt = dynamic_cast<ExpressionStatement&>(*program.statements[0]);
+    REQUIRE("{}"_format(stmt)
+            == "add(a, b, 1, (2 * 3), (4 + 5), add(6, (7 * 8)))");
+  };
+  SECTION("D") {
+    Program program = parse("add(a + b + c * d / f + g)");
+    auto& stmt = dynamic_cast<ExpressionStatement&>(*program.statements[0]);
+    REQUIRE("{}"_format(stmt) == "add((((a + b) + ((c * d) / f)) + g))");
   };
 }

@@ -6,9 +6,11 @@ using namespace fmt::literals;
 using std::make_unique;
 using std::move;
 using std::unique_ptr;
+using std::vector;
 
 namespace monkey {
-using TT = Token::Type;
+using TT            = Token::Type;
+using ExpressionPtr = unique_ptr<Expression>;
 
 Parser::Parser(Lexer& lexer)
     : lexer{lexer}
@@ -46,6 +48,8 @@ Parser::Parser(Lexer& lexer)
       std::bind(&Parser::parse_infix_expression, this, _1);
   infix_parse_fns[TT::GT] =
       std::bind(&Parser::parse_infix_expression, this, _1);
+  infix_parse_fns[TT::LPAREN] =
+      std::bind(&Parser::parse_call_expression, this, _1);
 }
 
 void Parser::next_token() {
@@ -76,13 +80,17 @@ unique_ptr<LetStatement> Parser::parse_let_statement() {
   if (!expect_peek(TT::IDENT)) { return nullptr; }
   stmt->name = make_unique<Identifier>(cur_token);
   if (!expect_peek(TT::ASSIGN)) { return nullptr; }
-  while (!cur_token_is(TT::SEMICOLON)) { next_token(); }
+  next_token();
+  stmt->value = parse_expression(Precedence::LOWEST);
+  if (peek_token_is(TT::SEMICOLON)) next_token();
   return stmt;
 }
 
 unique_ptr<ReturnStatement> Parser::parse_return_statement() {
   auto stmt = make_unique<ReturnStatement>(cur_token);
-  while (!cur_token_is(TT::SEMICOLON)) next_token();
+  next_token();
+  stmt->return_value = parse_expression(Precedence::LOWEST);
+  if (peek_token_is(TT::SEMICOLON)) next_token();
   return stmt;
 }
 
@@ -166,6 +174,7 @@ std::unordered_map<TT, Parser::Precedence> Parser::precedences = {
     {TT::MINUS, Precedence::SUM},
     {TT::SLASH, Precedence::PRODUCT},
     {TT::ASTERISK, Precedence::PRODUCT},
+    {TT::LPAREN, Precedence::CALL},
 };
 
 Parser::Precedence Parser::peek_precedence() {
@@ -260,6 +269,32 @@ std::vector<Identifier> Parser::parse_function_parameters() {
   if (!expect_peek(Token::Type::RPAREN)) return params;
 
   return params;
+}
+Parser::ExpressionPtr Parser::parse_call_expression(ExpressionPtr func) {
+  auto exp       = make_unique<CallExpression>(move(cur_token), move(func));
+  exp->arguments = parse_call_arguments();
+  return exp;
+}
+
+vector<ExpressionPtr> Parser::parse_call_arguments() {
+  vector<ExpressionPtr> args{};
+  if (peek_token_is(Token::Type::RPAREN)) {
+    next_token();
+    return args;
+  }
+
+  next_token();
+  args.emplace_back(parse_expression(Precedence::LOWEST));
+
+  while (peek_token_is(Token::Type::COMMA)) {
+    next_token();
+    next_token();
+    args.emplace_back(parse_expression(Precedence::LOWEST));
+  }
+
+  if (!expect_peek(Token::Type::RPAREN)) return args;
+
+  return args;
 }
 
 } // namespace monkey

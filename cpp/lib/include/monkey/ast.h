@@ -32,7 +32,7 @@ struct Expression : Node {
 
 struct Program {
   std::vector<std::unique_ptr<Statement>> statements{};
-  const std::string& token_literal() const;
+  // const std::string& token_literal() const;
   friend std::ostream& operator<<(std::ostream&, const Program&);
 };
 
@@ -123,6 +123,15 @@ struct FunctionLiteral : Expression {
 
   std::vector<Identifier> parameters{};
   std::unique_ptr<BlockStatement> body;
+
+  std::ostream& print(std::ostream&) const override;
+};
+
+struct CallExpression : Expression {
+  explicit CallExpression(Token&& token, std::unique_ptr<Expression> expression);
+
+  std::vector<std::unique_ptr<Expression>> arguments;
+  std::unique_ptr<Expression> function;
 
   std::ostream& print(std::ostream&) const override;
 };

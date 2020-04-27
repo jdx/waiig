@@ -14,23 +14,6 @@ TEST_CASE("repl") {
 
     repl::start(in, out);
 
-    REQUIRE(out.str() == R"EOF(>> LET<"let">
-IDENT<"add">
-ASSIGN<"=">
-FUNCTION<"fn">
-LPAREN<"(">
-IDENT<"x">
-COMMA<",">
-IDENT<"y">
-RPAREN<")">
-LBRACE<"{">
-IDENT<"x">
-PLUS<"+">
-IDENT<"y">
-SEMICOLON<";">
-RBRACE<"}">
-SEMICOLON<";">
->> 
-)EOF");
+    REQUIRE(out.str() == ">> let add = fn(x, y) { (x + y) };\n>> \n");
   };
 };

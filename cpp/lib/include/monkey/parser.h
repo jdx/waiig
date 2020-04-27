@@ -47,8 +47,10 @@ private:
   ExpressionPtr parse_grouped_expression();
   ExpressionPtr parse_if_expression();
   ExpressionPtr parse_function_literal();
+  ExpressionPtr parse_call_expression(ExpressionPtr func);
   std::unique_ptr<BlockStatement> parse_block_statement();
   std::vector<Identifier> parse_function_parameters();
+  std::vector<ExpressionPtr> parse_call_arguments();
 
   void next_token();
   bool cur_token_is(Token::Type type) const;

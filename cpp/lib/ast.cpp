@@ -29,11 +29,11 @@ std::ostream& Node::print(ostream& out) const {
 //</editor-fold>
 
 //<editor-fold desc="Program">
-const string& Program::token_literal() const {
-  static string empty;
-  if (statements.empty()) { return empty; }
-  return statements[0]->token_literal();
-}
+// const string& Program::token_literal() const {
+//   static string empty;
+//   if (statements.empty()) { return empty; }
+//   return statements[0]->token_literal();
+// }
 ostream& operator<<(ostream& out, const Program& p) {
   for (const auto& s : p.statements) out << *s;
   return out;
@@ -117,6 +117,7 @@ std::ostream& IfExpression::print(ostream& out) const {
   if (alternative) out << " else " << *alternative;
   return out;
 }
+
 IfExpression::IfExpression(Token&& token)
     : Expression{move(token)} { }
 
@@ -132,6 +133,20 @@ std::ostream& FunctionLiteral::print(ostream& out) const {
     if (first) first = false;
   }
   return out << ") " << *body;
+}
+
+CallExpression::CallExpression(Token&& token, ExpressionPtr func)
+    : Expression(move(token)), function{move(func)} { }
+
+std::ostream& CallExpression::print(ostream& out) const {
+  out << *function << "(";
+  bool first{true};
+  for (auto& arg : arguments) {
+    if (!first) out << ", ";
+    out << *arg;
+    if (first) first = false;
+  }
+  return out << ")";
 }
 
 } // namespace monkey
