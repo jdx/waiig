@@ -15,14 +15,14 @@ find_package(fmt CONFIG REQUIRED)
 find_package(Catch2 CONFIG REQUIRED)
 find_package(range-v3 CONFIG REQUIRED)
 
-add_library(lib lib/lexer.cpp lib/lexer.cpp lib/token.cpp lib/repl.cpp lib/ast.cpp lib/include/monkey/ast.h lib/include/monkey/lexer.h lib/include/monkey/parser.h lib/parser.cpp)
+add_library(lib lib/lexer.cpp lib/lexer.cpp lib/token.cpp lib/repl.cpp lib/ast.cpp lib/include/monkey/ast.h lib/include/monkey/lexer.h lib/include/monkey/parser.h lib/parser.cpp lib/include/monkey/object.h lib/object.cpp lib/include/monkey/evaluator.h lib/evaluator.cpp)
 target_link_libraries(lib fmt::fmt)
 target_include_directories(lib PUBLIC lib/include)
 
 add_executable(monkey bin/main.cpp bin/user.cpp)
 target_link_libraries(monkey lib)
 
-add_executable(testlib test/main.cpp test/lexer_test.cpp test/repl_test.cpp test/parser_test.cpp)
+add_executable(testlib test/main.cpp test/lexer_test.cpp test/repl_test.cpp test/parser_test.cpp test/evaluator_test.cpp)
 #target_include_directories(testlib PRIVATE lib)
 target_link_libraries(testlib PRIVATE lib Catch2::Catch2 range-v3)
 

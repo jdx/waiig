@@ -1,5 +1,6 @@
 use std::io;
 mod lexer;
+mod token;
 
 fn main() {
     println!("rust/mnky 1.0");
@@ -10,6 +11,6 @@ fn main() {
             .read_line(&mut input)
             .expect("failed to read line");
 
-        lexer::Lexer::new(input);
+        lexer::Lexer::new(&input);
     }
 }

@@ -1,28 +1,28 @@
-mod token {
-    enum Type {
-        ILLEGAL,
-        EOF,
+#[derive(Debug, Eq, PartialEq)]
+pub enum TokenType {
+    ILLEGAL,
+    EOF,
 
-        IDENT,
-        INT,
+    IDENT,
+    INT,
 
-        ASSIGN,
-        PLUS,
+    ASSIGN,
+    PLUS,
 
-        COMMA,
-        SEMICOLON,
+    COMMA,
+    SEMICOLON,
 
-        LPAREN,
-        RPAREN,
-        LBRACE,
-        RBRACE,
+    LPAREN,
+    RPAREN,
+    LBRACE,
+    RBRACE,
 
-        FUNCTION,
-        LET,
-    }
+    FUNCTION,
+    LET,
+}
 
-    struct Token {
-        type_: Type,
-        literal: string,
-    }
+#[derive(Debug, Eq, PartialEq)]
+pub struct Token {
+    pub type_: TokenType,
+    pub literal: String,
 }

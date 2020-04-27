@@ -12,7 +12,7 @@ struct Node {
   explicit Node(Token&& token);
   virtual ~Node() = default;
 
-  virtual const std::string& token_literal() const;
+  const std::string& token_literal() const;
 
   friend std::ostream& operator<<(std::ostream&, const Node&);
 
@@ -22,18 +22,16 @@ protected:
 
 struct Statement : Node {
   explicit Statement(Token&& token);
-  // void statementNode() { }
 };
 
 struct Expression : Node {
   explicit Expression(Token&& token);
-  // void expressionNode() { }
 };
 
-struct Program {
+struct Program : Node {
   std::vector<std::unique_ptr<Statement>> statements{};
-  // const std::string& token_literal() const;
-  friend std::ostream& operator<<(std::ostream&, const Program&);
+  Program();
+  std::ostream& print(std::ostream&) const override;
 };
 
 struct BlockStatement : Statement {
