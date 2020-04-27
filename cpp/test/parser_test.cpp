@@ -238,3 +238,46 @@ TEST_CASE("if expression w/ alternative") {
   REQUIRE("{}"_format(*exp.alternative) == "{ y }");
   REQUIRE("{}"_format(program) == "if (x < y) { x } else { y }");
 }
+
+TEST_CASE("function literal") {
+  Program program = parse("fn(x, y) { x + y; }");
+  REQUIRE(program.statements.size() == 1);
+  auto& stmt = dynamic_cast<ExpressionStatement&>(*program.statements[0]);
+  auto& exp  = dynamic_cast<FunctionLiteral&>(*stmt.expression);
+  REQUIRE(exp.parameters.size() == 2);
+  REQUIRE("{}"_format(exp.parameters[0]) == "x");
+  REQUIRE("{}"_format(exp.parameters[1]) == "y");
+  REQUIRE(exp.body->statements.size() == 1);
+  REQUIRE("{}"_format(*exp.body->statements[0]) == "(x + y)");
+  REQUIRE("{}"_format(program) == "fn(x, y) { (x + y) }");
+}
+
+TEST_CASE("function literals") {
+  SECTION("no params") {
+    Program program = parse("fn() {};");
+    auto& stmt      = dynamic_cast<ExpressionStatement&>(*program.statements[0]);
+    auto& exp       = dynamic_cast<FunctionLiteral&>(*stmt.expression);
+
+    REQUIRE(exp.parameters.size() == 0);
+  };
+
+  SECTION("1 param") {
+    Program program = parse("fn(x) {};");
+    auto& stmt      = dynamic_cast<ExpressionStatement&>(*program.statements[0]);
+    auto& exp       = dynamic_cast<FunctionLiteral&>(*stmt.expression);
+
+    REQUIRE(exp.parameters.size() == 1);
+    REQUIRE(exp.parameters[0].value == "x");
+  };
+
+  SECTION("3 params") {
+    Program program = parse("fn(x, y, z) {};");
+    auto& stmt      = dynamic_cast<ExpressionStatement&>(*program.statements[0]);
+    auto& exp       = dynamic_cast<FunctionLiteral&>(*stmt.expression);
+
+    REQUIRE(exp.parameters.size() == 3);
+    REQUIRE(exp.parameters[0].value == "x");
+    REQUIRE(exp.parameters[1].value == "y");
+    REQUIRE(exp.parameters[2].value == "z");
+  };
+}

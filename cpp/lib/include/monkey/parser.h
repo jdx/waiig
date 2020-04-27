@@ -46,7 +46,9 @@ private:
   ExpressionPtr parse_boolean();
   ExpressionPtr parse_grouped_expression();
   ExpressionPtr parse_if_expression();
+  ExpressionPtr parse_function_literal();
   std::unique_ptr<BlockStatement> parse_block_statement();
+  std::vector<Identifier> parse_function_parameters();
 
   void next_token();
   bool cur_token_is(Token::Type type) const;

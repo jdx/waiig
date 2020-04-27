@@ -47,7 +47,7 @@ struct BlockStatement : Statement {
 struct Identifier : Expression {
   explicit Identifier(Token token);
 
-  const std::string& value;
+  std::string value;
 
   std::ostream& print(std::ostream&) const override;
 };

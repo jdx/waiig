@@ -131,7 +131,7 @@ std::ostream& FunctionLiteral::print(ostream& out) const {
     out << p;
     if (first) first = false;
   }
-  return out << ") " << body;
+  return out << ") " << *body;
 }
 
 } // namespace monkey

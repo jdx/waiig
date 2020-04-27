@@ -27,6 +27,8 @@ Parser::Parser(Lexer& lexer)
   prefix_parse_fns[TT::LPAREN] =
       std::bind(&Parser::parse_grouped_expression, this);
   prefix_parse_fns[TT::IF] = std::bind(&Parser::parse_if_expression, this);
+  prefix_parse_fns[TT::FUNCTION] =
+      std::bind(&Parser::parse_function_literal, this);
 
   infix_parse_fns[TT::PLUS] =
       std::bind(&Parser::parse_infix_expression, this, _1);
@@ -229,6 +231,35 @@ unique_ptr<BlockStatement> Parser::parse_block_statement() {
     next_token();
   }
   return block;
+}
+
+Parser::ExpressionPtr Parser::parse_function_literal() {
+  auto exp = make_unique<FunctionLiteral>(move(cur_token));
+  if (!expect_peek(Token::Type::LPAREN)) return nullptr;
+  exp->parameters = parse_function_parameters();
+  if (!expect_peek(Token::Type::LBRACE)) return nullptr;
+  exp->body = parse_block_statement();
+  return exp;
+}
+
+std::vector<Identifier> Parser::parse_function_parameters() {
+  std::vector<Identifier> params{};
+  if (peek_token_is(Token::Type::RPAREN)) {
+    next_token();
+    return params;
+  }
+  next_token();
+  params.emplace_back(move(cur_token));
+
+  while (peek_token_is(Token::Type::COMMA)) {
+    next_token();
+    next_token();
+    params.emplace_back(move(cur_token));
+  }
+
+  if (!expect_peek(Token::Type::RPAREN)) return params;
+
+  return params;
 }
 
 } // namespace monkey
