@@ -19,6 +19,14 @@ using std::unordered_map;
 using std::vector;
 using ObjPtr = unique_ptr<object::Object>;
 
+ObjPtr intobj(int val) {
+  return make_unique<object::Integer>(val);
+}
+
+ObjPtr nullobj() {
+  return unique_ptr<object::Null>();
+}
+
 ObjPtr eval_statements(const vector<unique_ptr<Statement>>& stmts) {
   ObjPtr result{};
   for (auto& stmt : stmts) { result = eval(*stmt); }
@@ -67,6 +75,19 @@ ObjPtr eval(const PrefixExpression& b) {
   auto right = eval(*b.right);
   if (b.op == "!") return eval_bang_operator_expression(right);
   if (b.op == "-") return eval_minus_operator_expression(right);
+  return nullobj();
+}
+
+ObjPtr eval(const InfixExpression& b) {
+  const auto& left  = eval(*b.left);
+  const auto& right = eval(*b.right);
+  if (typeid(left) != typeid(IntegerLiteral)
+      || typeid(right) != typeid(IntegerLiteral))
+    return nullobj();
+  const auto& l = dynamic_cast<const IntegerLiteral&>(*left);
+  const auto& r = dynamic_cast<const IntegerLiteral&>(*right);
+  if (b.op == "+") return intobj(l.value + r.value);
+  if (b.op == "-") return intobj(l.value - r.value);
   return unique_ptr<object::Null>();
 }
 
@@ -93,6 +114,10 @@ ObjPtr eval(const Node& node) {
       {typeid(PrefixExpression),
        [](const Node& node) {
          return eval(dynamic_cast<const PrefixExpression&>(node));
+       }},
+      {typeid(InfixExpression),
+       [](const Node& node) {
+         return eval(dynamic_cast<const InfixExpression&>(node));
        }},
   };
   return lookup[typeid(node)](node);
