@@ -1,3 +1,5 @@
+#![feature(option_result_contains)]
+
 use std::io;
 mod lexer;
 mod token;
