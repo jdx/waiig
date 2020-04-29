@@ -3,6 +3,7 @@ use std::io::prelude::*;
 use std::io::BufReader;
 
 use crate::lexer::Lexer;
+use crate::parser::parse;
 
 static PROMPT: &str = ">>";
 
@@ -36,6 +37,7 @@ impl<O: Write> Repl<O> {
         for tok in Lexer::new(&input) {
             println!("{:?}", tok);
         }
+        parse(Lexer::new(&input));
         self.prompt()?;
 
         Ok(())
