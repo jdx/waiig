@@ -324,6 +324,14 @@ if (5 < 10) {
         // assert_eq!(errors[0].message, String::from(""));
     }
 
+    #[test]
+    fn expression_statement() {
+        lex("5;", vec![
+            (Int, "5"),
+            (Semicolon, ";"),
+        ]);
+    }
+
     fn lex(input: &str, tokens: Vec<(TokenType, &str)>) {
         let input = String::from(input);
         let lexer = Lexer::new(&input);

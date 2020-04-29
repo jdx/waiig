@@ -35,7 +35,7 @@ impl<O: Write> Repl<O> {
     fn execute(&mut self, input: String) -> io::Result<()> {
         self.partial_output = false;
         for tok in Lexer::new(&input) {
-            writeln!(self.stdout, "{:?}", tok);
+            writeln!(self.stdout, "{:?}", tok)?;
         }
         parse(Lexer::new(&input));
         self.prompt()?;
@@ -62,7 +62,6 @@ mod tests {
     use super::*;
     use pretty_assertions::{assert_eq};
     use std::io::Cursor;
-    use std::iter::FromIterator;
 
     #[test]
     fn test_repl() {
@@ -72,9 +71,9 @@ mod tests {
     }
 
     fn exec(input: &str) -> String {
-        let mut stdin = Cursor::new(input);
+        let stdin = Cursor::new(input);
         let mut stdout = Cursor::new(Vec::new());
-        Repl::run(stdin, &mut stdout);
+        Repl::run(stdin, &mut stdout).unwrap();
 
         return String::from_utf8(stdout.into_inner()).unwrap();
     }

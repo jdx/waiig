@@ -2,6 +2,7 @@ mod lexer;
 mod token;
 mod repl;
 mod parser;
+mod ast;
 
 use repl::Repl;
 use std::io;
