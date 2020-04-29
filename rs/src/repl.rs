@@ -35,7 +35,7 @@ impl<O: Write> Repl<O> {
     fn execute(&mut self, input: String) -> io::Result<()> {
         self.partial_output = false;
         for tok in Lexer::new(&input) {
-            println!("{:?}", tok);
+            writeln!(self.stdout, "{:?}", tok);
         }
         parse(Lexer::new(&input));
         self.prompt()?;
@@ -54,5 +54,28 @@ impl<O: Write> Repl<O> {
         self.partial_output = true;
         write!(self.stdout, "{} ", PROMPT)?;
         self.stdout.flush()
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use pretty_assertions::{assert_eq};
+    use std::io::Cursor;
+    use std::iter::FromIterator;
+
+    #[test]
+    fn test_repl() {
+        assert_eq!(exec("foo"), "rust/mnky 1.0
+>> Token { type_: Ident, literal: \"foo\", row: 0, col: 1 }
+>> \n");
+    }
+
+    fn exec(input: &str) -> String {
+        let mut stdin = Cursor::new(input);
+        let mut stdout = Cursor::new(Vec::new());
+        Repl::run(stdin, &mut stdout);
+
+        return String::from_utf8(stdout.into_inner()).unwrap();
     }
 }
