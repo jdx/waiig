@@ -28,15 +28,12 @@ impl<'a> Parser<'a> {
     }
 
     fn parse_statement(&mut self) -> Option<Statement> {
-        match self.parse_expression_statement() {
-            Some(exp) => Some(Statement::Expression(exp)),
-            _ => None,
-        }
+        self.parse_expression_statement()
     }
 
-    fn parse_expression_statement(&mut self) -> Option<ExpressionStatement> {
+    fn parse_expression_statement(&mut self) -> Option<Statement> {
         let exp = match self.parse_expression() {
-            Some(expression) => ExpressionStatement { expression },
+            Some(expression) => Statement::Expression(expression),
             _ => return None,
         };
 
@@ -50,9 +47,9 @@ impl<'a> Parser<'a> {
     fn parse_expression(&mut self) -> Option<Expression> {
         let token = self.lex.next().unwrap();
         let exp = match token.type_ {
-            Int => IntegerLiteral::new(token),
-            True => BooleanLiteral::new(token),
-            Ident => IdentifierLiteral::new(token),
+            Int => Expression::new_integer(token),
+            True => Expression::new_boolean(token),
+            Ident => Expression::new_identifier(token),
             _ => return None,
         };
 
