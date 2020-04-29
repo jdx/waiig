@@ -1,18 +1,10 @@
-#![feature(option_result_contains)]
-
-use std::io;
 mod lexer;
 mod token;
+mod repl;
 
-fn main() {
-    println!("rust/mnky 1.0");
+use repl::Repl;
+use std::io;
 
-    loop {
-        let mut input = String::new();
-        io::stdin()
-            .read_line(&mut input)
-            .expect("failed to read line");
-
-        lexer::Lexer::new(&input);
-    }
+fn main() -> Result<(), std::io::Error> {
+    Repl::run(io::stdin(), io::stdout())
 }

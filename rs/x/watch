@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+set -e
+
+while true; do
+  fd \\.rs | entr -dc -- ./x/run "$@"
+done
+
