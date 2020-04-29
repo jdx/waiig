@@ -8,31 +8,48 @@ static PROMPT: &str = ">>";
 
 pub struct Repl<O: Write> {
     stdout: O,
+    partial_output: bool,
 }
 
 impl<O: Write> Repl<O> {
-    pub fn run<I: Read>(stdin: I, stdout: O) -> Result<(), io::Error> {
-        println!("rust/mnky 1.0");
-
-        let mut repl = Repl{stdout};
-        repl._run(stdin)
+    pub fn run<I: Read>(stdin: I, stdout: O) -> io::Result<()> {
+        let mut repl = Repl {
+            stdout,
+            partial_output: false,
+        };
+        repl.init()?;
+        for input in BufReader::new(stdin).lines() {
+            repl.execute(input?)?;
+        }
+        repl.cleanup()?;
+        Ok(())
     }
 
-    fn _run<I: Read>(&mut self, stdin: I) -> Result<(), io::Error> {
+    fn init(&mut self) -> io::Result<()> {
+        writeln!(self.stdout, "rust/mnky 1.0")?;
         self.prompt()?;
-        for input in BufReader::new(stdin).lines() {
-            let input = input?;
-            for tok in Lexer::new(&input) {
-                println!("{:?}", tok);
-            }
-            self.prompt()?;
+        Ok(())
+    }
+
+    fn execute(&mut self, input: String) -> io::Result<()> {
+        self.partial_output = false;
+        for tok in Lexer::new(&input) {
+            println!("{:?}", tok);
         }
-        println!();
+        self.prompt()?;
 
         Ok(())
     }
 
-    fn prompt(&mut self) -> Result<(), io::Error> {
+    fn cleanup(&mut self) -> io::Result<()> {
+        if self.partial_output {
+            writeln!(self.stdout)?;
+        }
+        Ok(())
+    }
+
+    fn prompt(&mut self) -> io::Result<()> {
+        self.partial_output = true;
         write!(self.stdout, "{} ", PROMPT)?;
         self.stdout.flush()
     }

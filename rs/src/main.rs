@@ -5,6 +5,6 @@ mod repl;
 use repl::Repl;
 use std::io;
 
-fn main() -> Result<(), std::io::Error> {
+fn main() -> io::Result<()> {
     Repl::run(io::stdin(), io::stdout())
 }
